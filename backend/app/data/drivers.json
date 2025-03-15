@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "name": "Lando Norris",
+    "number": 4,
+    "constructor": "McLaren",
+    "is_active": true
+  },
+  {
+    "id": 2,
+    "name": "Oscar Piastri",
+    "number": 81,
+    "constructor": "McLaren",
+    "is_active": true
+  },
+  {
+    "id": 3,
+    "name": "Charles Leclerc",
+    "number": 16,
+    "constructor": "Ferrari",
+    "is_active": true
+  },
+  {
+    "id": 4,
+    "name": "Lewis Hamilton",
+    "number": 44,
+    "constructor": "Ferrari",
+    "is_active": true
+  },
+  {
+    "id": 5,
+    "name": "Max Verstappen",
+    "number": 1,
+    "constructor": "Red Bull",
+    "is_active": true
+  },
+  {
+    "id": 6,
+    "name": "Liam Lawson",
+    "number": 30,
+    "constructor": "Red Bull",
+    "is_active": true
+  },
+  {
+    "id": 7,
+    "name": "George Russell",
+    "number": 63,
+    "constructor": "Mercedes",
+    "is_active": true
+  },
+  {
+    "id": 8,
+    "name": "Kimi Antonelli",
+    "number": 12,
+    "constructor": "Mercedes",
+    "is_active": true
+  },
+  {
+    "id": 9,
+    "name": "Fernando Alonso",
+    "number": 14,
+    "constructor": "Aston Martin",
+    "is_active": true
+  },
+  {
+    "id": 10,
+    "name": "Lance Stroll",
+    "number": 18,
+    "constructor": "Aston Martin",
+    "is_active": true
+  },
+  {
+    "id": 11,
+    "name": "Pierre Gasly",
+    "number": 10,
+    "constructor": "Alpine",
+    "is_active": true
+  },
+  {
+    "id": 12,
+    "name": "Jack Doohan",
+    "number": 7,
+    "constructor": "Alpine",
+    "is_active": true
+  },
+  {
+    "id": 13,
+    "name": "Esteban Ocon",
+    "number": 31,
+    "constructor": "Haas",
+    "is_active": true
+  },
+  {
+    "id": 14,
+    "name": "Oliver Bearman",
+    "number": 87,
+    "constructor": "Haas",
+    "is_active": true
+  },
+  {
+    "id": 15,
+    "name": "Carlos Sainz",
+    "number": 55,
+    "constructor": "Williams",
+    "is_active": true
+  },
+  {
+    "id": 16,
+    "name": "Alexander Albon",
+    "number": 23,
+    "constructor": "Williams",
+    "is_active": true
+  },
+  {
+    "id": 17,
+    "name": "Yuki Tsunoda",
+    "number": 22,
+    "constructor": "Racing Bulls",
+    "is_active": true
+  },
+  {
+    "id": 18,
+    "name": "Isack Hadjar",
+    "number": 6,
+    "constructor": "Racing Bulls",
+    "is_active": true
+  },
+  {
+    "id": 19,
+    "name": "Nico Hulkenberg",
+    "number": 27,
+    "constructor": "Kick Sauber",
+    "is_active": true
+  },
+  {
+    "id": 20,
+    "name": "Gabriel Bortoleto",
+    "number": 5,
+    "constructor": "Kick Sauber",
+    "is_active": true
+  }
+]

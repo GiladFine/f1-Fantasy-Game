@@ -1,0 +1,170 @@
+[
+  {
+    "id": 1,
+    "name": "Australian GP",
+    "track": "Albert Park Circuit",
+    "date": "2025-03-16T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 2,
+    "name": "China GP",
+    "track": "Shanghai International Circuit",
+    "date": "2025-04-06T00:00:00+00:00",
+    "has_sprint": true
+  },
+  {
+    "id": 3,
+    "name": "Japanese GP",
+    "track": "Suzuka Circuit",
+    "date": "2025-04-06T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 4,
+    "name": "Bahrain GP",
+    "track": "Bahrain International Circuit",
+    "date": "2025-04-13T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 5,
+    "name": "Saudi Arabian GP",
+    "track": "Jeddah Corniche Circuit",
+    "date": "2025-04-20T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 6,
+    "name": "Miami GP",
+    "track": "Miami International Autodrome",
+    "date": "2025-05-04T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 7,
+    "name": "Emilia Romagna GP",
+    "track": "Autodromo Enzo e Dino Ferrari",
+    "date": "2025-05-18T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 8,
+    "name": "Monaco GP",
+    "track": "Circuit de Monaco",
+    "date": "2025-05-25T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 9,
+    "name": "Spanish GP",
+    "track": "Circuit de Barcelona-Catalunya",
+    "date": "2025-06-01T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 10,
+    "name": "Canadian GP",
+    "track": "Circuit Gilles Villeneuve",
+    "date": "2025-06-15T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 11,
+    "name": "Austrian GP",
+    "track": "Red Bull Ring",
+    "date": "2025-06-29T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 12,
+    "name": "Great Britain GP",
+    "track": "Silverstone Circuit",
+    "date": "2025-07-06T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 13,
+    "name": "Belgium GP",
+    "track": "Circuit de Spa-Francorchamps",
+    "date": "2025-07-27T00:00:00+00:00",
+    "has_sprint": true
+  },
+  {
+    "id": 14,
+    "name": "Hungarian GP",
+    "track": "Hungaroring",
+    "date": "2025-08-03T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 15,
+    "name": "Dutch GP",
+    "track": "Circuit Zandvoort",
+    "date": "2025-08-31T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 16,
+    "name": "Italian GP",
+    "track": "Autodromo Nazionale Monza",
+    "date": "2025-09-07T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 17,
+    "name": "Azerbaijan GP",
+    "track": "Baku City Circuit",
+    "date": "2025-09-21T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 18,
+    "name": "Singapore GP",
+    "track": "Marina Bay Street Circuit",
+    "date": "2025-10-05T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 19,
+    "name": "USA GP", 
+    "track": "Circuit of the Americas",
+    "date": "2025-10-19T00:00:00+00:00",
+    "has_sprint": true
+  },
+  {
+    "id": 20,
+    "name": "Mexico City GP",
+    "track": "Autódromo Hermanos Rodríguez",
+    "date": "2025-10-26T00:00:00+00:00", 
+    "has_sprint": false
+  },
+  {
+    "id": 21,
+    "name": "São Paulo GP",
+    "track": "Autódromo José Carlos Pace",
+    "date": "2025-11-09T00:00:00+00:00",
+    "has_sprint": true
+  },
+  {
+    "id": 22,
+    "name": "Las Vegas GP",
+    "track": "Las Vegas Strip Circuit",
+    "date": "2025-11-22T00:00:00+00:00",
+    "has_sprint": false
+  },
+  {
+    "id": 23,
+    "name": "Qatar GP",
+    "track": "Lusail International Circuit", 
+    "date": "2025-11-30T00:00:00+00:00",
+    "has_sprint": true
+  },
+  {
+    "id": 24,
+    "name": "Abu Dhabi GP",
+    "track": "Yas Marina Circuit", 
+    "date": "2025-12-07T00:00:00+00:00",
+    "has_sprint": false
+  }
+]

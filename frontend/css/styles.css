@@ -1,0 +1,157 @@
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* View Content */
+.view-content {
+    display: none;
+}
+
+.active-view {
+    display: block;
+}
+
+/* Cards */
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #e10600;
+    color: white;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+/* Tables */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    border-top: none;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: #e10600;
+    box-shadow: 0 0 0 0.2rem rgba(225, 6, 0, 0.25);
+}
+
+.btn-primary {
+    background-color: #e10600;
+    border-color: #e10600;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #c10500;
+    border-color: #c10500;
+}
+
+/* Custom F1 Styles */
+.navbar-dark {
+    background-color: #15151e !important;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: #e10600 !important;
+}
+
+.nav-link.active {
+    color: #e10600 !important;
+    font-weight: 500;
+}
+
+/* Team and Driver Cards */
+.team-card, .driver-card {
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.team-card:hover, .driver-card:hover {
+    transform: translateY(-5px);
+}
+
+.team-card .card-header {
+    padding: 0.75rem 1.25rem;
+}
+
+.team-badge {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Driver Images */
+.driver-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Race Cards */
+.race-date {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.race-track {
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .card-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .table {
+        font-size: 0.9rem;
+    }
+    
+    .driver-img {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Modal Styling */
+.modal-header {
+    background-color: #15151e;
+    color: white;
+    border-bottom: none;
+}
+
+.modal-footer {
+    border-top: none;
+} 

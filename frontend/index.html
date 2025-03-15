@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Fantasy Game</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">F1 Fantasy</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-view="dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-view="teams">Teams</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-view="drivers">Drivers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-view="races">Races</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="resultsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Results
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="resultsDropdown">
+                            <li><a class="dropdown-item" href="#" data-view="race-results">Race Results</a></li>
+                            <li><a class="dropdown-item" href="#" data-view="qualifying-results">Qualifying Results</a></li>
+                            <li><a class="dropdown-item" href="#" data-view="sprint-results">Sprint Results</a></li>
+                            <li><a class="dropdown-item" href="#" data-view="sprint-qualifying-results">Sprint Qualifying Results</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div id="content">
+            <!-- Content will be loaded here dynamically -->
+            <div id="dashboard-view" class="view-content active-view">
+                <h2>Dashboard</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3>Team Standings</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="team-standings-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Position</th>
+                                                <th>Team</th>
+                                                <th>Owner</th>
+                                                <th>Points</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Team standings will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Driver Standings</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="driver-standings-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Position</th>
+                                                <th>Driver</th>
+                                                <th>Team</th>
+                                                <th>Points</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Driver standings will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Other views will be loaded here -->
+            <div id="teams-view" class="view-content">
+                <!-- Teams view content -->
+            </div>
+            
+            <div id="drivers-view" class="view-content">
+                <!-- Drivers view content -->
+            </div>
+            
+            <div id="races-view" class="view-content">
+                <!-- Races view content -->
+            </div>
+            
+            <div id="race-results-view" class="view-content">
+                <!-- Race results view content -->
+            </div>
+            
+            <div id="qualifying-results-view" class="view-content">
+                <!-- Qualifying results view content -->
+            </div>
+            
+            <div id="sprint-results-view" class="view-content">
+                <!-- Sprint results view content -->
+            </div>
+            
+            <div id="sprint-qualifying-results-view" class="view-content">
+                <!-- Sprint qualifying results view content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="js/scoring.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/drivers.js"></script>
+    <script src="js/races.js"></script>
+    <script src="js/results.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html> 
