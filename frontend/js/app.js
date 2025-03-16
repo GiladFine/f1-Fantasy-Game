@@ -343,6 +343,58 @@ const Utils = {
     // Show success message (can be enhanced with toast notifications)
     showSuccess(message) {
         alert(`Success: ${message}`);
+    },
+    
+    // Driver nationality mapping
+    driverNationalities: {
+        // Current drivers
+        "Lando Norris": "gb",
+        "Oscar Piastri": "au",
+        "Charles Leclerc": "mc",
+        "Lewis Hamilton": "gb",
+        "Max Verstappen": "nl",
+        "Liam Lawson": "nz",
+        "George Russell": "gb",
+        "Kimi Antonelli": "it",
+        "Fernando Alonso": "es",
+        "Lance Stroll": "ca",
+        "Pierre Gasly": "fr",
+        "Jack Doohan": "au",
+        "Esteban Ocon": "fr",
+        "Oliver Bearman": "gb",
+        "Carlos Sainz": "es",
+        "Alexander Albon": "th",
+        "Yuki Tsunoda": "jp",
+        "Isack Hadjar": "fr",
+        "Nico Hulkenberg": "de",
+        "Gabriel Bortoleto": "br",
+        // Add any other drivers as needed
+    },
+    
+    // Get driver flag HTML
+    getDriverFlagHtml(driverName) {
+        const countryCode = this.driverNationalities[driverName] || '';
+        if (!countryCode) return '';
+        
+        // Return flag emoji (works on most modern browsers and OS)
+        // Convert country code to regional indicator symbols
+        if (countryCode.length === 2) {
+            // Convert each letter to the corresponding regional indicator symbol
+            const flagEmoji = countryCode
+                .toUpperCase()
+                .split('')
+                .map(char => String.fromCodePoint(char.charCodeAt(0) + 127397))
+                .join('');
+            
+            return `<span class="driver-flag" title="${countryCode.toUpperCase()}">${flagEmoji}</span> `;
+        }
+        
+        return '';
+    },
+    
+    // Get driver name with flag
+    getDriverNameWithFlag(driverName) {
+        return `${this.getDriverFlagHtml(driverName)}${driverName}`;
     }
 };
 

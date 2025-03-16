@@ -296,4 +296,17 @@ body {
 
 .driver-result-row:active {
     background-color: #e5e5e5;
+}
+
+/* Driver flags */
+.driver-flag {
+    margin-right: 4px;
+    display: inline-block;
+}
+
+/* Ensure flag and name are on the same line */
+td .driver-flag,
+h3 .driver-flag,
+div .driver-flag {
+    vertical-align: middle;
 } 

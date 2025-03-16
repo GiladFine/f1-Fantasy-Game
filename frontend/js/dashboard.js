@@ -114,7 +114,7 @@ const Dashboard = {
         
         // Add each driver's points
         sortedDrivers.forEach(driverData => {
-            html += `<div>${driverData.driver.name}: ${driverData.points} points</div>`;
+            html += `<div>${Utils.getDriverNameWithFlag(driverData.driver.name)}: ${driverData.points} points</div>`;
         });
         
         // Total
@@ -157,7 +157,7 @@ const Dashboard = {
             
             // Driver
             const driverCell = document.createElement('td');
-            driverCell.textContent = standing.driver.name;
+            driverCell.innerHTML = Utils.getDriverNameWithFlag(standing.driver.name);
             row.appendChild(driverCell);
             
             // Constructor

@@ -77,7 +77,7 @@ const DriversView = {
             driverCard.innerHTML = `
                 <div class="card driver-card" data-driver-id="${driver.id}">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3>${driver.name}</h3>
+                        <h3>${Utils.getDriverNameWithFlag(driver.name)}</h3>
                         <div>
                             <button class="btn btn-sm btn-outline-light edit-driver-btn">Edit</button>
                         </div>
@@ -118,7 +118,7 @@ const DriversView = {
                 driverCard.innerHTML = `
                     <div class="card driver-card" data-driver-id="${driver.id}">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h3>${driver.name}</h3>
+                            <h3>${Utils.getDriverNameWithFlag(driver.name)}</h3>
                             <div>
                                 <button class="btn btn-sm btn-outline-light transfer-driver-btn">Transfer</button>
                             </div>
@@ -325,7 +325,7 @@ const DriversView = {
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Transfer ${driver.name}</h5>
+                            <h5 class="modal-title">Transfer ${Utils.getDriverNameWithFlag(driver.name)}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -420,7 +420,7 @@ const DriversView = {
         team.driver_ids.forEach(driverId => {
             const driver = appState.drivers.find(d => d.id === driverId);
             if (driver) {
-                select.innerHTML += `<option value="${driver.id}">${driver.name}</option>`;
+                select.innerHTML += `<option value="${driver.id}">${Utils.getDriverNameWithFlag(driver.name)}</option>`;
             }
         });
     },

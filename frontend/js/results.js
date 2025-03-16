@@ -427,7 +427,7 @@ const ResultsView = {
                 
                 // Driver column
                 const driverCell = document.createElement('td');
-                driverCell.textContent = driver.name;
+                driverCell.innerHTML = Utils.getDriverNameWithFlag(driver.name);
                 row.appendChild(driverCell);
                 
                 // Position column
@@ -818,7 +818,7 @@ const ResultsView = {
         // Driver name
         const nameDiv = document.createElement('div');
         nameDiv.className = 'driver-name flex-grow-1';
-        nameDiv.textContent = driver.name;
+        nameDiv.innerHTML = Utils.getDriverNameWithFlag(driver.name);
         content.appendChild(nameDiv);
         
         // Add DNF checkbox if in race mode and in order list
