@@ -301,11 +301,13 @@ const DataManager = {
         
         // Add up all driver points for each team
         appState.teams.forEach(team => {
-            team.driver_ids.forEach(driverId => {
-                if (driverPoints[driverId]) {
-                    teamPoints[team.id].totalPoints += driverPoints[driverId].totalPoints;
-                }
-            });
+            if (team.driver_ids && team.driver_ids.length > 0) {
+                team.driver_ids.forEach(driverId => {
+                    if (driverPoints[driverId]) {
+                        teamPoints[team.id].totalPoints += driverPoints[driverId].totalPoints;
+                    }
+                });
+            }
         });
         
         // Convert to array and sort by points
