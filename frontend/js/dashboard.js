@@ -162,7 +162,7 @@ const Dashboard = {
             
             // Constructor
             const constructorCell = document.createElement('td');
-            constructorCell.textContent = standing.driver.constructor || 'N/A';
+            constructorCell.innerHTML = Utils.getConstructorWithLogo(standing.driver.constructor);
             row.appendChild(constructorCell);
             
             // Team (Fantasy Team)

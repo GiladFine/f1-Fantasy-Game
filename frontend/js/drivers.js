@@ -84,7 +84,7 @@ const DriversView = {
                     </div>
                     <div class="card-body">
                         <p><strong>Number:</strong> ${driver.number}</p>
-                        <p><strong>Constructor:</strong> ${driver.constructor}</p>
+                        <p><strong>Constructor:</strong> ${Utils.getConstructorWithLogo(driver.constructor)}</p>
                         <p><strong>Status:</strong> ${driver.is_active ? 'Active' : 'Inactive'}</p>
                         <p><strong>Team:</strong> ${this.getTeamNameForDriver(driver.id)}</p>
                     </div>
@@ -125,7 +125,7 @@ const DriversView = {
                         </div>
                         <div class="card-body">
                             <p><strong>Number:</strong> ${driver.number}</p>
-                            <p><strong>Constructor:</strong> ${driver.constructor}</p>
+                            <p><strong>Constructor:</strong> ${Utils.getConstructorWithLogo(driver.constructor)}</p>
                             <p><strong>Status:</strong> ${driver.is_active ? 'Active' : 'Inactive'}</p>
                         </div>
                     </div>

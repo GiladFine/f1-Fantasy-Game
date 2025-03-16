@@ -371,6 +371,20 @@ const Utils = {
         // Add any other drivers as needed
     },
     
+    // Constructor logo mapping
+    constructorLogos: {
+        "McLaren": "frontend/images/logos/mclaren.png",
+        "Ferrari": "frontend/images/logos/ferrari.png",
+        "Red Bull": "frontend/images/logos/redbull.png",
+        "Mercedes": "frontend/images/logos/mercedes.png",
+        "Aston Martin": "frontend/images/logos/astonmartin.png",
+        "Alpine": "frontend/images/logos/alpine.png",
+        "Haas": "frontend/images/logos/haas.png",
+        "Williams": "frontend/images/logos/williams.png",
+        "Racing Bulls": "frontend/images/logos/racingbulls.png",
+        "Kick Sauber": "frontend/images/logos/sauber.png"
+    },
+    
     // Get driver flag HTML
     getDriverFlagHtml(driverName) {
         const countryCode = this.driverNationalities[driverName] || '';
@@ -395,6 +409,60 @@ const Utils = {
     // Get driver name with flag
     getDriverNameWithFlag(driverName) {
         return `${this.getDriverFlagHtml(driverName)}${driverName}`;
+    },
+    
+    // Get constructor logo HTML
+    getConstructorLogoHtml(constructorName) {
+        if (!constructorName || constructorName === 'N/A') return '';
+        
+        // Map of constructor names to their logo URLs
+        const logoUrls = {
+            "McLaren": "https://www.formula1.com/content/dam/fom-website/teams/2023/mclaren-logo.png.transform/2col/image.png",
+            "Ferrari": "https://www.formula1.com/content/dam/fom-website/teams/2023/ferrari-logo.png.transform/2col/image.png",
+            "Red Bull": "https://www.formula1.com/content/dam/fom-website/teams/2023/red-bull-racing-logo.png.transform/2col/image.png",
+            "Mercedes": "https://www.formula1.com/content/dam/fom-website/teams/2023/mercedes-logo.png.transform/2col/image.png",
+            "Aston Martin": "https://www.formula1.com/content/dam/fom-website/teams/2023/aston-martin-logo.png.transform/2col/image.png",
+            "Alpine": "https://www.formula1.com/content/dam/fom-website/teams/2023/alpine-logo.png.transform/2col/image.png",
+            "Haas": "https://www.formula1.com/content/dam/fom-website/teams/2023/haas-f1-team-logo.png.transform/2col/image.png",
+            "Williams": "https://www.formula1.com/content/dam/fom-website/teams/2023/williams-logo.png.transform/2col/image.png",
+            "Racing Bulls": "https://www.formula1.com/content/dam/fom-website/teams/2024/rb-logo.png.transform/2col/image.png",
+            "Kick Sauber": "https://www.formula1.com/content/dam/fom-website/teams/2024/kick-sauber-logo.png.transform/2col/image.png"
+        };
+        
+        // Fallback colors for the circle with initials
+        const colors = {
+            "McLaren": "#FF8700",
+            "Ferrari": "#DC0000",
+            "Red Bull": "#0600EF",
+            "Mercedes": "#00D2BE",
+            "Aston Martin": "#006F62",
+            "Alpine": "#0090FF",
+            "Haas": "#FFFFFF",
+            "Williams": "#005AFF",
+            "Racing Bulls": "#1E41FF",
+            "Kick Sauber": "#900000"
+        };
+        
+        const logoUrl = logoUrls[constructorName];
+        if (logoUrl) {
+            // Create an image with a fallback to the colored circle if the image fails to load
+            const color = colors[constructorName] || "#999999";
+            const initials = constructorName.split(' ').map(word => word[0]).join('');
+            
+            return `<img src="${logoUrl}" alt="${constructorName}" class="constructor-logo" title="${constructorName}" onerror="this.style.display='none'; var span = document.createElement('span'); span.className='constructor-logo-circle'; span.style.backgroundColor='${color}'; span.title='${constructorName}'; span.textContent='${initials}'; this.parentNode.insertBefore(span, this);">`;
+        } else {
+            // If no logo URL is available, use the colored circle
+            const color = colors[constructorName] || "#999999";
+            const initials = constructorName.split(' ').map(word => word[0]).join('');
+            
+            return `<span class="constructor-logo-circle" style="background-color: ${color};" title="${constructorName}">${initials}</span> `;
+        }
+    },
+    
+    // Get constructor name with logo
+    getConstructorWithLogo(constructorName) {
+        if (!constructorName || constructorName === 'N/A') return 'N/A';
+        return `${this.getConstructorLogoHtml(constructorName)}${constructorName}`;
     }
 };
 

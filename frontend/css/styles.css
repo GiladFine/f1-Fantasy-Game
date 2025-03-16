@@ -309,4 +309,47 @@ td .driver-flag,
 h3 .driver-flag,
 div .driver-flag {
     vertical-align: middle;
+}
+
+/* Constructor logos */
+.constructor-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    margin-right: 6px;
+    vertical-align: middle;
+    background-color: transparent;
+    border-radius: 2px;
+}
+
+/* Constructor logo circles */
+.constructor-logo-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+    vertical-align: middle;
+}
+
+/* Special case for Haas which has white background */
+.constructor-logo-circle[style*="background-color: #FFFFFF"] {
+    color: #000;
+    border: 1px solid #ddd;
+}
+
+/* Ensure logo and name are on the same line */
+td .constructor-logo,
+h3 .constructor-logo,
+div .constructor-logo,
+td .constructor-logo-circle,
+h3 .constructor-logo-circle,
+div .constructor-logo-circle {
+    display: inline-flex;
 } 

@@ -256,8 +256,9 @@ const ResultsView = {
                     <table class="table table-striped" id="results-table-${this.currentType}">
                         <thead>
                             <tr>
-                                <th>Driver</th>
                                 <th>Position</th>
+                                <th>Driver</th>
+                                <th>Constructor</th>
                                 ${this.currentType === 'race' ? '<th>Fastest Lap</th><th>Finished</th>' : ''}
                                 <th>Fantasy Points</th>
                             </tr>
@@ -425,15 +426,20 @@ const ResultsView = {
                 row.classList.add('driver-result-row');
                 row.style.cursor = 'pointer';
                 
+                // Position column
+                const positionCell = document.createElement('td');
+                positionCell.textContent = result.position;
+                row.appendChild(positionCell);
+                
                 // Driver column
                 const driverCell = document.createElement('td');
                 driverCell.innerHTML = Utils.getDriverNameWithFlag(driver.name);
                 row.appendChild(driverCell);
                 
-                // Position column
-                const positionCell = document.createElement('td');
-                positionCell.textContent = result.position;
-                row.appendChild(positionCell);
+                // Constructor column
+                const constructorCell = document.createElement('td');
+                constructorCell.innerHTML = Utils.getConstructorWithLogo(driver.constructor);
+                row.appendChild(constructorCell);
                 
                 // Additional columns for race results
                 if (this.currentType === 'race') {
@@ -801,6 +807,11 @@ const ResultsView = {
         const content = document.createElement('div');
         content.className = 'd-flex align-items-center';
         
+        // Position badge
+        const positionBadge = document.createElement('div');
+        positionBadge.className = 'driver-position badge bg-secondary me-2';
+        content.appendChild(positionBadge);
+        
         // Handle
         const handle = document.createElement('div');
         handle.className = 'driver-handle me-2';
@@ -818,7 +829,7 @@ const ResultsView = {
         // Driver name
         const nameDiv = document.createElement('div');
         nameDiv.className = 'driver-name flex-grow-1';
-        nameDiv.innerHTML = Utils.getDriverNameWithFlag(driver.name);
+        nameDiv.innerHTML = `${Utils.getDriverNameWithFlag(driver.name)} <small class="text-muted">(${Utils.getConstructorLogoHtml(driver.constructor)}${driver.constructor || 'N/A'})</small>`;
         content.appendChild(nameDiv);
         
         // Add DNF checkbox if in race mode and in order list
@@ -847,11 +858,6 @@ const ResultsView = {
                 this.handleInlineDNFCheck(e.target);
             });
         }
-        
-        // Position badge
-        const positionBadge = document.createElement('div');
-        positionBadge.className = 'driver-position badge bg-secondary';
-        content.appendChild(positionBadge);
         
         li.appendChild(content);
         
