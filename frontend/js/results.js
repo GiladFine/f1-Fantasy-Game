@@ -122,6 +122,11 @@ const ResultsView = {
                             <!-- Results will be rendered here -->
                         </tbody>
                     </table>
+                    ${this.currentType === 'race' ? `
+                    <div class="text-muted small mt-2">
+                        <i class="fas fa-info-circle me-1"></i> Fantasy points include: base position points, fastest lap (top 10 only), position gains from qualifying, beating teammates, and DNF penalties. Hover over points for a breakdown.
+                    </div>
+                    ` : ''}
                 </div>`
             }
         `;
@@ -229,11 +234,91 @@ const ResultsView = {
                 // Fantasy points column
                 const pointsCell = document.createElement('td');
                 pointsCell.textContent = result.fantasy_points || 0;
+                
+                // Add tooltip with fantasy points breakdown for race results
+                row.appendChild(pointsCell);
+                if (this.currentType === 'race') {
+                    // Calculate base points, position gain points, and teammate points
+                    const basePoints = ScoringSystem.calculateRacePoints(result.position, false);
+                    const fastestLapPoint = result.fastest_lap && result.position <= 10 ? 1 : 0;
+                    const dnfPenalty = !result.finished ? ScoringSystem.calculateDNFPenalty(false) : 0;
+                    
+                    // Position gain points
+                    let positionGainPoints = 0;
+                    const qualifyingResult = appState.qualifyingResults.find(qr => 
+                        qr.race_id === result.race_id && qr.driver_id === result.driver_id
+                    );
+                    if (qualifyingResult) {
+                        positionGainPoints = ScoringSystem.calculatePositionGainPoints(
+                            qualifyingResult.position, 
+                            result.position
+                        );
+                    }
+                    
+                    // Constructor teammate points - F1 drivers have exactly one teammate
+                    let teammatePoints = 0;
+                    const driver = Utils.getDriverById(result.driver_id);
+                    if (driver) {
+                        // Find the constructor (F1 team) this driver belongs to
+                        const constructor = appState.teams.find(c => c.driver_ids.includes(driver.id));
+                        if (constructor) {
+                            // Get the teammate's ID (there should be exactly one in F1)
+                            const teammateId = constructor.driver_ids.find(id => id !== driver.id);
+                            if (teammateId) {
+                                // Check if driver beat their constructor teammate
+                                const teammateResult = appState.raceResults.find(rr => 
+                                    rr.race_id === result.race_id && rr.driver_id === teammateId
+                                );
+                                if (teammateResult && result.position < teammateResult.position) {
+                                    // Driver beat their teammate, award 2 points
+                                    teammatePoints = 2;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Calculate total points to show in tooltip (do NOT reference result.fantasy_points)
+                    const calculatedTotal = basePoints + fastestLapPoint + dnfPenalty + positionGainPoints + teammatePoints;
+                    
+                    // Create tooltip content
+                    const tooltipContent = `
+                        <div class="fantasy-points-breakdown">
+                            <div>Position Points: ${basePoints}</div>
+                            ${fastestLapPoint > 0 ? '<div>Fastest Lap: +1</div>' : ''}
+                            ${dnfPenalty !== 0 ? `<div>DNF Penalty: ${dnfPenalty}</div>` : ''}
+                            ${positionGainPoints > 0 ? `<div>Position Gain: +${positionGainPoints}</div>` : ''}
+                            ${teammatePoints > 0 ? `<div>Beat Teammate: +${teammatePoints}</div>` : ''}
+                            <hr>
+                            <div><strong>Total: ${calculatedTotal}</strong></div>
+                        </div>
+                    `;
+                    
+                    // Add data attributes for tooltip
+                    pointsCell.setAttribute('data-bs-toggle', 'tooltip');
+                    pointsCell.setAttribute('data-bs-html', 'true');
+                    pointsCell.setAttribute('data-bs-title', tooltipContent);
+                    pointsCell.classList.add('fantasy-points-cell');
+                    
+                    // Show the calculated points in the cell (not what might be stored in DB)
+                    pointsCell.textContent = calculatedTotal;
+                    
+                    // Add a small info icon
+                    const infoIcon = document.createElement('i');
+                    infoIcon.className = 'fas fa-info-circle ms-1 text-muted small';
+                    pointsCell.appendChild(infoIcon);
+                }
+                
                 row.appendChild(pointsCell);
                 
                 tableBody.appendChild(row);
             });
         });
+        
+        // Initialize tooltips
+        if (this.currentType === 'race') {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        }
     },
     
     /**
@@ -892,9 +977,8 @@ const ResultsView = {
                 result.finished = !dnfDrivers.has(driverId);
             }
             
-            // Calculate fantasy points
-            result.fantasy_points = this.calculateDriverPoints(result);
-            
+            // Add to the results array - we'll calculate fantasy points at the end
+            // after all results are created, so we can account for teammate comparisons
             results.push(result);
         });
         
@@ -905,6 +989,67 @@ const ResultsView = {
             
             // Show a loading indicator or message
             Utils.showSuccess('Saving results...');
+            
+            // Calculate fantasy points for all results
+            // We need to do this after all results are prepared to calculate teammate comparisons correctly
+            if (this.currentType === 'race') {
+                // Use the results array directly
+                const allResults = results;
+                
+                // First pass: Calculate fantasy points using our calculateDriverPoints method
+                allResults.forEach(result => {
+                    result.fantasy_points = this.calculateDriverPoints(result);
+                });
+                
+                // Second pass: Verify and fix the points calculation if needed
+                allResults.forEach(result => {
+                    // Calculate each component separately
+                    const basePoints = ScoringSystem.calculateRacePoints(result.position, false);
+                    const fastestLapPoint = result.fastest_lap && result.position <= 10 ? 1 : 0;
+                    const dnfPenalty = !result.finished ? ScoringSystem.calculateDNFPenalty(false) : 0;
+                    
+                    // Position gain points
+                    let positionGainPoints = 0;
+                    const qualifyingResult = appState.qualifyingResults.find(qr => 
+                        qr.race_id === result.race_id && qr.driver_id === result.driver_id
+                    );
+                    if (qualifyingResult) {
+                        positionGainPoints = ScoringSystem.calculatePositionGainPoints(
+                            qualifyingResult.position, result.position
+                        );
+                    }
+                    
+                    // Teammate points - only for current race
+                    let teammatePoints = 0;
+                    const driver = Utils.getDriverById(result.driver_id);
+                    if (driver) {
+                        const team = appState.teams.find(team => team.driver_ids.includes(driver.id));
+                        if (team) {
+                            const teammateIds = team.driver_ids.filter(id => id !== driver.id);
+                            // Count how many teammates were beaten
+                            let teammatesBeaten = 0;
+                            teammateIds.forEach(teammateId => {
+                                // Find teammate in the current results being saved
+                                const teammateResult = allResults.find(r => r.driver_id === teammateId);
+                                if (teammateResult && result.position < teammateResult.position) {
+                                    teammatesBeaten++;
+                                }
+                            });
+                            // Add 2 points per beaten teammate
+                            teammatePoints = teammatesBeaten * 2;
+                        }
+                    }
+                    
+                    // Calculate the expected total and update the result
+                    const expectedTotal = basePoints + fastestLapPoint + dnfPenalty + positionGainPoints + teammatePoints;
+                    result.fantasy_points = expectedTotal;
+                });
+            } else {
+                // For non-race results, standard fantasy points calculation
+                results.forEach(result => {
+                    result.fantasy_points = this.calculateDriverPoints(result);
+                });
+            }
             
             // Use Promise.all to create all results in parallel
             await Promise.all(results.map(async (result) => {
@@ -948,19 +1093,67 @@ const ResultsView = {
         
         switch (this.currentType) {
             case 'race':
-                points = ScoringSystem.calculateRacePoints(result.position, result.fastest_lap);
+                // 1. Base race points (without fastest lap)
+                points = ScoringSystem.calculateRacePoints(result.position, false);
                 
-                // DNF penalty
+                // 2. Add fastest lap point separately (only if in top 10)
+                if (result.fastest_lap && result.position <= 10) {
+                    points += 1;
+                }
+                
+                // 3. DNF penalty
                 if (!result.finished) {
                     points += ScoringSystem.calculateDNFPenalty(false);
                 }
+                
+                // 4. Position gain points
+                const qualifyingResult = appState.qualifyingResults.find(qr => 
+                    qr.race_id === result.race_id && qr.driver_id === result.driver_id
+                );
+                
+                if (qualifyingResult) {
+                    const positionGainPoints = ScoringSystem.calculatePositionGainPoints(
+                        qualifyingResult.position, 
+                        result.position
+                    );
+                    points += positionGainPoints;
+                }
+                
+                // 5. Teammate points
+                const driver = Utils.getDriverById(result.driver_id);
+                if (driver) {
+                    // Find the team this driver belongs to
+                    const team = appState.teams.find(team => team.driver_ids.includes(driver.id));
+                    if (team) {
+                        // Get the teammate(s)
+                        const teammateIds = team.driver_ids.filter(id => id !== driver.id);
+                        
+                        // Count each beaten teammate
+                        let teammatesBeaten = 0;
+                        teammateIds.forEach(teammateId => {
+                            const teammateResult = appState.raceResults.find(rr => 
+                                rr.race_id === result.race_id && rr.driver_id === teammateId
+                            );
+                            
+                            if (teammateResult && result.position < teammateResult.position) {
+                                teammatesBeaten++;
+                            }
+                        });
+                        
+                        // Add 2 points per beaten teammate
+                        points += (teammatesBeaten * 2);
+                    }
+                }
                 break;
+                
             case 'qualifying':
                 points = ScoringSystem.calculateQualifyingPoints(result.position);
                 break;
+                
             case 'sprint':
                 points = ScoringSystem.calculateSprintPoints(result.position);
                 break;
+                
             case 'sprint-qualifying':
                 points = ScoringSystem.calculateQualifyingPoints(result.position);
                 break;
@@ -1268,9 +1461,6 @@ const ResultsView = {
                 result.finished = !dnfDrivers.has(driverId);
             }
             
-            // Calculate fantasy points
-            result.fantasy_points = this.calculateDriverPoints(result);
-            
             // Check if this is an update or create
             if (resultIdMap.has(driverId)) {
                 // Update
@@ -1291,6 +1481,70 @@ const ResultsView = {
             
             // Show loading message
             Utils.showSuccess('Updating results...');
+            
+            // Calculate fantasy points for all results
+            // We need to do this after all results are prepared to calculate teammate comparisons correctly
+            if (this.currentType === 'race') {
+                // Use the results array directly
+                const allResults = [...updateResults, ...createResults];
+                
+                // First pass: Calculate fantasy points using our calculateDriverPoints method
+                allResults.forEach(result => {
+                    result.fantasy_points = this.calculateDriverPoints(result);
+                });
+                
+                // Second pass: Verify and fix the points calculation if needed
+                allResults.forEach(result => {
+                    // Calculate each component separately
+                    const basePoints = ScoringSystem.calculateRacePoints(result.position, false);
+                    const fastestLapPoint = result.fastest_lap && result.position <= 10 ? 1 : 0;
+                    const dnfPenalty = !result.finished ? ScoringSystem.calculateDNFPenalty(false) : 0;
+                    
+                    // Position gain points
+                    let positionGainPoints = 0;
+                    const qualifyingResult = appState.qualifyingResults.find(qr => 
+                        qr.race_id === result.race_id && qr.driver_id === result.driver_id
+                    );
+                    if (qualifyingResult) {
+                        positionGainPoints = ScoringSystem.calculatePositionGainPoints(
+                            qualifyingResult.position, result.position
+                        );
+                    }
+                    
+                    // Teammate points - only for current race
+                    let teammatePoints = 0;
+                    const driver = Utils.getDriverById(result.driver_id);
+                    if (driver) {
+                        const team = appState.teams.find(team => team.driver_ids.includes(driver.id));
+                        if (team) {
+                            const teammateIds = team.driver_ids.filter(id => id !== driver.id);
+                            // Count how many teammates were beaten
+                            let teammatesBeaten = 0;
+                            teammateIds.forEach(teammateId => {
+                                // Find teammate in the current results being saved
+                                const teammateResult = allResults.find(r => r.driver_id === teammateId);
+                                if (teammateResult && result.position < teammateResult.position) {
+                                    teammatesBeaten++;
+                                }
+                            });
+                            // Add 2 points per beaten teammate
+                            teammatePoints = teammatesBeaten * 2;
+                        }
+                    }
+                    
+                    // Calculate the expected total and update the result
+                    const expectedTotal = basePoints + fastestLapPoint + dnfPenalty + positionGainPoints + teammatePoints;
+                    result.fantasy_points = expectedTotal;
+                });
+            } else {
+                // For non-race results, standard fantasy points calculation
+                updateResults.forEach(result => {
+                    result.fantasy_points = this.calculateDriverPoints(result);
+                });
+                createResults.forEach(result => {
+                    result.fantasy_points = this.calculateDriverPoints(result);
+                });
+            }
             
             // Process deletes
             await Promise.all(deleteIds.map(async (id) => {
