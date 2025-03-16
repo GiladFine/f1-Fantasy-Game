@@ -23,21 +23,30 @@ const ResultsView = {
         console.log('Sprint results count:', appState.sprintResults ? appState.sprintResults.length : 0);
         console.log('Sprint qualifying results count:', appState.sprintQualifyingResults ? appState.sprintQualifyingResults.length : 0);
         
+        // Store the previous type before updating
+        const previousType = this.currentType;
+        
+        // Update the current type
         this.currentType = type;
         
         // Reset render counter
         this.renderCounter = 0;
+        
+        // Set up global event listeners
+        this.setupGlobalEventListeners();
         
         // Check if sprint/sprint-qualifying is requested but no races have sprints
         if ((type === 'sprint' || type === 'sprint-qualifying') && !this.hasSprintRaces()) {
             console.log('No sprint races found, showing message');
             // Show message that no races have sprints
             this.renderNoSprintMessage();
+            
+            // Make sure we set up event listeners even for the no-sprint message view
+            this.setupEventListeners();
+            
+            console.log(`=== FINISHED INITIALIZING ${type.toUpperCase()} RESULTS VIEW (NO SPRINT RACES) ===`);
             return;
         }
-        
-        // Set up global event listeners
-        this.setupGlobalEventListeners();
         
         this.renderResults();
         this.setupEventListeners();
@@ -50,9 +59,13 @@ const ResultsView = {
     setupGlobalEventListeners: function() {
         // Remove any existing global listeners
         document.removeEventListener('change', this.handleGlobalRaceFilterChange);
+        document.removeEventListener('click', this.handleGlobalAddResultClick);
         
         // Add global event listener for race filter changes
         document.addEventListener('change', this.handleGlobalRaceFilterChange.bind(this));
+        
+        // Add global event listener for Add Result button clicks
+        document.addEventListener('click', this.handleGlobalAddResultClick.bind(this));
         
         // Disconnect any existing observer
         if (this.observer) {
@@ -135,10 +148,30 @@ const ResultsView = {
         const resultsView = document.getElementById(viewId);
         resultsView.innerHTML = `
             <h2>${title}</h2>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <button id="add-result-btn" class="btn btn-primary">Add Result</button>
+                </div>
+            </div>
             <div class="alert alert-info mt-4">
                 No races with sprint sessions available. Only races with sprint sessions will appear here.
             </div>
         `;
+        
+        // Set up event listener for the Add Result button
+        const addResultBtn = document.getElementById('add-result-btn');
+        if (addResultBtn) {
+            // Store a reference to this for use in the event handler
+            const self = this;
+            
+            // Add event listener with explicit binding
+            addResultBtn.addEventListener('click', function(event) {
+                console.log('Add result button clicked from no-sprint message view for type:', self.currentType);
+                self.showAddResultModal.call(self);
+            });
+            
+            console.log('Event listener added to add result button in no-sprint message view');
+        }
     },
     
     /**
@@ -455,12 +488,28 @@ const ResultsView = {
         console.log('=== SETTING UP EVENT LISTENERS ===');
         console.log('Current type:', this.currentType);
         
+        // First, remove any existing event listeners to prevent duplicates
+        const existingAddResultBtn = document.getElementById('add-result-btn');
+        if (existingAddResultBtn) {
+            console.log('Removing existing event listeners from Add Result button');
+            const newAddResultBtn = existingAddResultBtn.cloneNode(true);
+            existingAddResultBtn.parentNode.replaceChild(newAddResultBtn, existingAddResultBtn);
+        }
+        
         // Add result button
         const addResultBtn = document.getElementById('add-result-btn');
         console.log('Add result button:', addResultBtn);
         
         if (addResultBtn) {
-            addResultBtn.addEventListener('click', this.showAddResultModal.bind(this));
+            // Store a reference to this for use in the event handler
+            const self = this;
+            
+            // Add event listener with explicit binding
+            addResultBtn.addEventListener('click', function(event) {
+                console.log('Add result button clicked for type:', self.currentType);
+                self.showAddResultModal.call(self);
+            });
+            
             console.log('Event listener added to add result button');
         } else {
             console.error('Add result button not found');
@@ -572,6 +621,16 @@ const ResultsView = {
      * Show modal for adding a new result
      */
     showAddResultModal: function() {
+        console.log('=== SHOW ADD RESULT MODAL CALLED ===');
+        console.log('Current type:', this.currentType);
+        
+        // Check if this is a sprint view and there are no sprint races
+        if ((this.currentType === 'sprint' || this.currentType === 'sprint-qualifying') && !this.hasSprintRaces()) {
+            console.log('No sprint races available for adding results');
+            Utils.showError('No races with sprint sessions are available. Please add sprint sessions to races first.');
+            return;
+        }
+        
         // Create modal HTML with drag-and-drop interface
         const modalHtml = `
             <div class="modal fade" id="result-modal" tabindex="-1" aria-hidden="true">
@@ -668,6 +727,9 @@ const ResultsView = {
         document.getElementById('result-modal').addEventListener('hidden.bs.modal', function() {
             this.remove();
         });
+        
+        // Log the current type for debugging
+        console.log('Modal opened for result type:', this.currentType);
     },
     
     /**
@@ -676,6 +738,24 @@ const ResultsView = {
     populateDriverLists: function() {
         const raceId = parseInt(document.getElementById('result-race').value);
         if (isNaN(raceId)) return;
+        
+        // Validate for sprint races
+        if ((this.currentType === 'sprint' || this.currentType === 'sprint-qualifying')) {
+            const race = Utils.getRaceById(raceId);
+            console.log('Selected race for sprint/sprint-qualifying:', race);
+            
+            if (!race) {
+                console.error('Race not found with ID:', raceId);
+                Utils.showError('Race not found');
+                return;
+            }
+            
+            if (!race.has_sprint) {
+                console.error('Race does not have sprint session:', race.name);
+                Utils.showError('This race does not have a sprint session');
+                return;
+            }
+        }
         
         const availableList = document.getElementById('driver-available-list');
         const orderList = document.getElementById('driver-order-list');
@@ -692,10 +772,13 @@ const ResultsView = {
         // Initialize drag and drop
         this.initDragAndDrop();
         
-        // Set up special race options
+        // Set up special race options if this is a race result
         if (this.currentType === 'race') {
             this.setupRaceOptions();
         }
+        
+        // For all other result types, we still need to update position numbers
+        this.updatePositionNumbers();
     },
     
     /**
@@ -2055,13 +2138,17 @@ const ResultsView = {
         // Filter races based on sprint status if needed
         let filteredRaces = appState.races;
         if (this.currentType === 'sprint' || this.currentType === 'sprint-qualifying') {
+            console.log('Filtering races for sprint/sprint-qualifying view');
             filteredRaces = appState.races.filter(race => race.has_sprint);
+            console.log('Found', filteredRaces.length, 'races with sprint sessions');
         }
         
         // Sort races by date
         const sortedRaces = [...filteredRaces].sort((a, b) => {
             return new Date(a.date) - new Date(b.date);
         });
+        
+        console.log('Rendering', sortedRaces.length, 'race options for', this.currentType, 'view');
         
         sortedRaces.forEach(race => {
             const selected = selectedRaceId === race.id ? 'selected' : '';
@@ -2173,6 +2260,27 @@ const ResultsView = {
             console.log('=== END RACE FILTERING DEBUG ===');
         } catch (error) {
             console.error('Error handling race filtering:', error);
+        }
+    },
+    
+    /**
+     * Handle global Add Result button click events
+     * @param {Event} event - Click event
+     */
+    handleGlobalAddResultClick: function(event) {
+        // Check if this is an Add Result button click
+        if (event.target && event.target.id === 'add-result-btn') {
+            console.log('=== GLOBAL ADD RESULT BUTTON CLICK ===');
+            console.log('Current type:', this.currentType);
+            
+            // Prevent default action and stop propagation
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Call the showAddResultModal method
+            this.showAddResultModal();
+            
+            console.log('=== END GLOBAL ADD RESULT BUTTON CLICK ===');
         }
     }
 };
