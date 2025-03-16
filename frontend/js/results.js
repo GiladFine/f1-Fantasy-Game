@@ -5,23 +5,116 @@
  */
 
 const ResultsView = {
+    // Track render count
+    renderCounter: 0,
+    
     /**
      * Initialize the results view
      * @param {string} type - Type of results to display ('race', 'qualifying', 'sprint', 'sprint-qualifying')
      */
     initialize: function(type = 'race') {
-        console.log(`Initializing ${type} results view...`);
+        console.log(`=== INITIALIZING ${type.toUpperCase()} RESULTS VIEW ===`);
+        console.log('Previous type:', this.currentType);
+        console.log('New type:', type);
+        
+        // Log the state of the results data
+        console.log('Race results count:', appState.raceResults ? appState.raceResults.length : 0);
+        console.log('Qualifying results count:', appState.qualifyingResults ? appState.qualifyingResults.length : 0);
+        console.log('Sprint results count:', appState.sprintResults ? appState.sprintResults.length : 0);
+        console.log('Sprint qualifying results count:', appState.sprintQualifyingResults ? appState.sprintQualifyingResults.length : 0);
+        
         this.currentType = type;
+        
+        // Reset render counter
+        this.renderCounter = 0;
         
         // Check if sprint/sprint-qualifying is requested but no races have sprints
         if ((type === 'sprint' || type === 'sprint-qualifying') && !this.hasSprintRaces()) {
+            console.log('No sprint races found, showing message');
             // Show message that no races have sprints
             this.renderNoSprintMessage();
             return;
         }
         
+        // Set up global event listeners
+        this.setupGlobalEventListeners();
+        
         this.renderResults();
         this.setupEventListeners();
+        console.log(`=== FINISHED INITIALIZING ${type.toUpperCase()} RESULTS VIEW ===`);
+    },
+    
+    /**
+     * Set up global event listeners that persist across view changes
+     */
+    setupGlobalEventListeners: function() {
+        // Remove any existing global listeners
+        document.removeEventListener('change', this.handleGlobalRaceFilterChange);
+        
+        // Add global event listener for race filter changes
+        document.addEventListener('change', this.handleGlobalRaceFilterChange.bind(this));
+        
+        // Disconnect any existing observer
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
+        
+        // Set up a simpler MutationObserver to detect when the race filter is added to the DOM
+        const self = this;
+        this.observer = new MutationObserver(function(mutations) {
+            const raceFilter = document.getElementById('race-filter');
+            if (raceFilter) {
+                console.log('MutationObserver: Race filter detected in DOM');
+                
+                // Disconnect observer once we've found the element
+                self.observer.disconnect();
+                
+                // Add a direct event listener
+                raceFilter.addEventListener('change', function() {
+                    console.log('MutationObserver: Race filter change event detected');
+                    const raceId = this.value ? parseInt(this.value) : null;
+                    console.log('MutationObserver: Selected Race ID:', raceId);
+                    
+                    // Use the helper function to handle filtering
+                    self.handleRaceFiltering(raceId);
+                });
+            }
+        });
+        
+        // Start observing the document
+        this.observer.observe(document.body, { childList: true, subtree: true });
+        console.log('MutationObserver started');
+    },
+    
+    /**
+     * Handle global race filter change events
+     * @param {Event} event - Change event
+     */
+    handleGlobalRaceFilterChange: function(event) {
+        // Check if this is a race filter change
+        if (event.target && event.target.classList.contains('race-filter')) {
+            console.log('=== GLOBAL RACE FILTER CHANGE ===');
+            console.log('Target ID:', event.target.id);
+            
+            const raceFilter = event.target;
+            const raceId = raceFilter.value ? parseInt(raceFilter.value) : null;
+            console.log('Global race filter change - Race ID:', raceId);
+            
+            // Get the view type from the data attribute
+            const viewType = raceFilter.getAttribute('data-view-type');
+            console.log('View type from data attribute:', viewType);
+            
+            // Update current type if needed
+            if (viewType && viewType !== this.currentType) {
+                console.log('Updating current type from', this.currentType, 'to', viewType);
+                this.currentType = viewType;
+            }
+            
+            // Use the helper function to handle filtering
+            this.handleRaceFiltering(raceId);
+            console.log('=== END GLOBAL RACE FILTER CHANGE ===');
+        }
     },
     
     /**
@@ -52,6 +145,11 @@ const ResultsView = {
      * Render the results in the view
      */
     renderResults: function() {
+        // Increment render counter
+        this.renderCounter++;
+        console.log(`=== RENDERING RESULTS VIEW (${this.renderCounter}) ===`);
+        console.log('Current type:', this.currentType);
+        
         // Determine which view to render based on type
         let viewId, title, resultsData;
         
@@ -60,30 +158,43 @@ const ResultsView = {
                 viewId = 'race-results-view';
                 title = 'Race Results';
                 resultsData = appState.raceResults;
+                console.log('Using race results data, count:', appState.raceResults.length);
                 break;
             case 'qualifying':
                 viewId = 'qualifying-results-view';
                 title = 'Qualifying Results';
                 resultsData = appState.qualifyingResults;
+                console.log('Using qualifying results data, count:', appState.qualifyingResults.length);
                 break;
             case 'sprint':
                 viewId = 'sprint-results-view';
                 title = 'Sprint Results';
                 resultsData = appState.sprintResults;
+                console.log('Using sprint results data, count:', appState.sprintResults.length);
                 break;
             case 'sprint-qualifying':
                 viewId = 'sprint-qualifying-results-view';
                 title = 'Sprint Qualifying Results';
                 resultsData = appState.sprintQualifyingResults;
+                console.log('Using sprint qualifying results data, count:', appState.sprintQualifyingResults.length);
                 break;
             default:
                 viewId = 'race-results-view';
                 title = 'Race Results';
                 resultsData = appState.raceResults;
+                console.log('Using default (race) results data, count:', appState.raceResults.length);
         }
         
         // Get the view container
         const resultsView = document.getElementById(viewId);
+        console.log('Results view container:', resultsView);
+        
+        if (!resultsView) {
+            console.error(`Results view container with ID "${viewId}" not found in the DOM`);
+            return;
+        }
+        
+        console.log('Rendering HTML for view:', viewId);
         
         // Render the view
         resultsView.innerHTML = `
@@ -97,8 +208,8 @@ const ResultsView = {
             <div class="row mb-4">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="race-filter">Filter by Race</label>
-                        <select class="form-select" id="race-filter">
+                        <label for="race-filter-${this.currentType}">Filter by Race</label>
+                        <select class="form-select race-filter" id="race-filter-${this.currentType}" data-view-type="${this.currentType}">
                             <option value="">All Races</option>
                             ${this.renderRaceOptions()}
                         </select>
@@ -109,7 +220,7 @@ const ResultsView = {
             ${resultsData.length === 0 ? 
                 `<div class="alert alert-info">No ${title.toLowerCase()} available yet. Add results using the button above.</div>` : 
                 `<div class="table-responsive">
-                    <table class="table table-striped" id="results-table">
+                    <table class="table table-striped" id="results-table-${this.currentType}">
                         <thead>
                             <tr>
                                 <th>Driver</th>
@@ -131,10 +242,44 @@ const ResultsView = {
             }
         `;
         
+        console.log('HTML rendered for view:', viewId);
+        
         // Render the results table if there are results
         if (resultsData.length > 0) {
+            console.log('Rendering results table with', resultsData.length, 'results');
             this.renderResultsTable(resultsData);
+        } else {
+            console.log('No results to render in table');
         }
+        
+        // Verify that the race filter element exists after rendering
+        const raceFilter = document.getElementById(`race-filter-${this.currentType}`);
+        console.log(`Race filter element (race-filter-${this.currentType}) after rendering:`, raceFilter);
+        
+        // Add a direct event listener to the race filter
+        if (raceFilter) {
+            const self = this;
+            raceFilter.addEventListener('change', function() {
+                console.log(`Race filter (${self.currentType}) change event fired`);
+                const raceId = this.value ? parseInt(this.value) : null;
+                console.log('Selected Race ID:', raceId);
+                
+                // Use the helper function to handle filtering
+                self.handleRaceFiltering(raceId);
+            });
+            console.log(`Event listener added to race filter (${this.currentType})`);
+        } else {
+            console.error(`Race filter element (race-filter-${this.currentType}) not found after rendering`);
+        }
+        
+        // Check for duplicate race filter elements
+        const allRaceFilters = document.querySelectorAll('.race-filter');
+        console.log('Number of elements with class race-filter:', allRaceFilters.length);
+        allRaceFilters.forEach((filter, index) => {
+            console.log(`Race filter ${index + 1}:`, filter.id, 'View type:', filter.getAttribute('data-view-type'));
+        });
+        
+        console.log(`=== FINISHED RENDERING RESULTS VIEW (${this.renderCounter}) ===`);
     },
     
     /**
@@ -155,8 +300,11 @@ const ResultsView = {
             return new Date(a.date) - new Date(b.date);
         });
         
+        // Add a debug log
+        console.log('Rendering race options for', this.currentType, ':', sortedRaces.length, 'races');
+        
         sortedRaces.forEach(race => {
-            options += `<option value="${race.id}">${race.name}</option>`;
+            options += `<option value="${race.id}" data-race-name="${race.name}" data-race-date="${race.date}">${race.name}</option>`;
         });
         
         return options;
@@ -168,13 +316,30 @@ const ResultsView = {
      * @param {number} raceId - Optional race ID to filter by
      */
     renderResultsTable: function(resultsData, raceId = null) {
-        const tableBody = document.querySelector('#results-table tbody');
+        console.log('=== RENDERING RESULTS TABLE ===');
+        console.log('Current type:', this.currentType);
+        console.log('Results data count:', resultsData.length);
+        console.log('Filtering by race ID:', raceId);
+        
+        const tableId = `results-table-${this.currentType}`;
+        console.log('Looking for table with ID:', tableId);
+        
+        const tableBody = document.querySelector(`#${tableId} tbody`);
+        console.log('Table body element:', tableBody);
+        
+        if (!tableBody) {
+            console.error(`Results table body for ${tableId} not found in the DOM`);
+            return;
+        }
+        
         tableBody.innerHTML = '';
+        console.log('Table body cleared');
         
         // Filter by race if specified
         let filteredResults = resultsData;
         if (raceId) {
             filteredResults = resultsData.filter(result => result.race_id === parseInt(raceId));
+            console.log('Filtered results by race ID:', raceId, 'Count:', filteredResults.length);
         }
         
         // Sort by race and then by position
@@ -184,6 +349,7 @@ const ResultsView = {
             }
             return a.position - b.position;
         });
+        console.log('Results sorted by race and position');
         
         // Group results by race
         const resultsByRace = {};
@@ -193,14 +359,20 @@ const ResultsView = {
             }
             resultsByRace[result.race_id].push(result);
         });
+        console.log('Results grouped by race, race count:', Object.keys(resultsByRace).length);
         
         // Render each race group
         Object.keys(resultsByRace).forEach(raceId => {
             const raceResults = resultsByRace[raceId];
+            console.log('Rendering results for race ID:', raceId, 'Count:', raceResults.length);
             
             // Render rows for each driver result
             raceResults.forEach(result => {
                 const driver = Utils.getDriverById(result.driver_id);
+                if (!driver) {
+                    console.error('Driver not found for ID:', result.driver_id);
+                    return;
+                }
                 
                 const row = document.createElement('tr');
                 row.setAttribute('data-result-id', result.id);
@@ -234,110 +406,88 @@ const ResultsView = {
                 // Fantasy points column
                 const pointsCell = document.createElement('td');
                 pointsCell.textContent = result.fantasy_points || 0;
-                
-                // Add tooltip with fantasy points breakdown for race results
-                row.appendChild(pointsCell);
-                if (this.currentType === 'race') {
-                    // Calculate base points, position gain points, and teammate points
-                    const basePoints = ScoringSystem.calculateRacePoints(result.position, false);
-                    const fastestLapPoint = result.fastest_lap && result.position <= 10 ? 1 : 0;
-                    const dnfPenalty = !result.finished ? ScoringSystem.calculateDNFPenalty(false) : 0;
-                    
-                    // Position gain points
-                    let positionGainPoints = 0;
-                    const qualifyingResult = appState.qualifyingResults.find(qr => 
-                        qr.race_id === result.race_id && qr.driver_id === result.driver_id
-                    );
-                    if (qualifyingResult) {
-                        positionGainPoints = ScoringSystem.calculatePositionGainPoints(
-                            qualifyingResult.position, 
-                            result.position
-                        );
-                    }
-                    
-                    // Constructor teammate points - F1 drivers have exactly one teammate
-                    let teammatePoints = 0;
-                    const driver = Utils.getDriverById(result.driver_id);
-                    if (driver) {
-                        // Find the constructor (F1 team) this driver belongs to
-                        const constructor = appState.teams.find(c => c.driver_ids.includes(driver.id));
-                        if (constructor) {
-                            // Get the teammate's ID (there should be exactly one in F1)
-                            const teammateId = constructor.driver_ids.find(id => id !== driver.id);
-                            if (teammateId) {
-                                // Check if driver beat their constructor teammate
-                                const teammateResult = appState.raceResults.find(rr => 
-                                    rr.race_id === result.race_id && rr.driver_id === teammateId
-                                );
-                                if (teammateResult && result.position < teammateResult.position) {
-                                    // Driver beat their teammate, award 2 points
-                                    teammatePoints = 2;
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Calculate total points to show in tooltip (do NOT reference result.fantasy_points)
-                    const calculatedTotal = basePoints + fastestLapPoint + dnfPenalty + positionGainPoints + teammatePoints;
-                    
-                    // Create tooltip content
-                    const tooltipContent = `
-                        <div class="fantasy-points-breakdown">
-                            <div>Position Points: ${basePoints}</div>
-                            ${fastestLapPoint > 0 ? '<div>Fastest Lap: +1</div>' : ''}
-                            ${dnfPenalty !== 0 ? `<div>DNF Penalty: ${dnfPenalty}</div>` : ''}
-                            ${positionGainPoints > 0 ? `<div>Position Gain: +${positionGainPoints}</div>` : ''}
-                            ${teammatePoints > 0 ? `<div>Beat Teammate: +${teammatePoints}</div>` : ''}
-                            <hr>
-                            <div><strong>Total: ${calculatedTotal}</strong></div>
-                        </div>
-                    `;
-                    
-                    // Add data attributes for tooltip
-                    pointsCell.setAttribute('data-bs-toggle', 'tooltip');
-                    pointsCell.setAttribute('data-bs-html', 'true');
-                    pointsCell.setAttribute('data-bs-title', tooltipContent);
-                    pointsCell.classList.add('fantasy-points-cell');
-                    
-                    // Show the calculated points in the cell (not what might be stored in DB)
-                    pointsCell.textContent = calculatedTotal;
-                    
-                    // Add a small info icon
-                    const infoIcon = document.createElement('i');
-                    infoIcon.className = 'fas fa-info-circle ms-1 text-muted small';
-                    pointsCell.appendChild(infoIcon);
-                }
-                
                 row.appendChild(pointsCell);
                 
                 tableBody.appendChild(row);
             });
         });
         
+        console.log('Table rendering complete');
+        
         // Initialize tooltips
         if (this.currentType === 'race') {
             const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
             const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+            console.log('Tooltips initialized');
         }
+        
+        // Set up action listeners for edit and delete buttons
+        this.setupResultActionListeners();
+        console.log('=== FINISHED RENDERING RESULTS TABLE ===');
     },
     
     /**
      * Set up event listeners for the results view
      */
     setupEventListeners: function() {
+        console.log('=== SETTING UP EVENT LISTENERS ===');
+        console.log('Current type:', this.currentType);
+        
         // Add result button
         const addResultBtn = document.getElementById('add-result-btn');
+        console.log('Add result button:', addResultBtn);
+        
         if (addResultBtn) {
             addResultBtn.addEventListener('click', this.showAddResultModal.bind(this));
+            console.log('Event listener added to add result button');
+        } else {
+            console.error('Add result button not found');
         }
         
         // Race filter
-        const raceFilter = document.getElementById('race-filter');
+        const raceFilterId = `race-filter-${this.currentType}`;
+        const raceFilter = document.getElementById(raceFilterId);
+        console.log(`Race Filter Element (${raceFilterId}):`, raceFilter);
+        
         if (raceFilter) {
-            raceFilter.addEventListener('change', () => {
-                const raceId = raceFilter.value ? parseInt(raceFilter.value) : null;
+            // Store reference to this for use in event handler
+            const self = this;
+            
+            // Add direct event listener
+            raceFilter.addEventListener('change', function() {
+                console.log(`Race filter (${self.currentType}) change event fired`);
+                const raceId = this.value ? parseInt(this.value) : null;
+                console.log('Selected Race ID:', raceId);
                 
-                // Get the appropriate results data based on type
+                // Use the helper function to handle filtering
+                self.handleRaceFiltering(raceId);
+            });
+            console.log(`Event listener added to race filter (${raceFilterId})`);
+            
+            // Add a manual filter button as a fallback
+            this.addManualFilterButton(raceFilterId);
+        } else {
+            console.error(`Race filter element (${raceFilterId}) not found`);
+        }
+        
+        console.log('=== FINISHED SETTING UP EVENT LISTENERS ===');
+    },
+    
+    /**
+     * Set up click handlers for race filter options
+     */
+    setupRaceFilterOptionHandlers: function() {
+        const raceFilter = document.getElementById('race-filter');
+        if (!raceFilter) return;
+        
+        // Add click handlers to each option
+        const options = raceFilter.querySelectorAll('option');
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                console.log('Race filter option clicked:', option.value);
+                const raceId = option.value ? parseInt(option.value) : null;
+                
+                // Get the appropriate results data
                 let resultsData;
                 switch (this.currentType) {
                     case 'race':
@@ -356,27 +506,78 @@ const ResultsView = {
                         resultsData = appState.raceResults;
                 }
                 
+                // Render the filtered results
                 this.renderResultsTable(resultsData, raceId);
                 this.setupResultActionListeners();
             });
+        });
+    },
+    
+    /**
+     * Add a manual filter button next to the race filter dropdown
+     * @param {string} raceFilterId - ID of the race filter element
+     */
+    addManualFilterButton: function(raceFilterId) {
+        console.log('=== ADDING MANUAL FILTER BUTTON ===');
+        console.log('Race filter ID:', raceFilterId);
+        
+        const raceFilter = document.getElementById(raceFilterId);
+        console.log('Race filter element:', raceFilter);
+        
+        if (!raceFilter) {
+            console.error(`Race filter element (${raceFilterId}) not found`);
+            return;
         }
         
-        // Set up action listeners for edit and delete buttons
-        this.setupResultActionListeners();
+        // Check if button already exists
+        const buttonId = `manual-filter-btn-${this.currentType}`;
+        if (document.getElementById(buttonId)) {
+            console.log(`Manual filter button (${buttonId}) already exists`);
+            return;
+        }
+        
+        // Create a button
+        const filterBtn = document.createElement('button');
+        filterBtn.id = buttonId;
+        filterBtn.className = 'btn btn-outline-primary btn-sm ms-2';
+        filterBtn.textContent = 'Apply Filter';
+        
+        // Add click event
+        const self = this;
+        filterBtn.addEventListener('click', function() {
+            const raceId = raceFilter.value ? parseInt(raceFilter.value) : null;
+            console.log(`Manual filter button (${self.currentType}) clicked, race ID:`, raceId);
+            
+            // Use the helper function to handle filtering
+            self.handleRaceFiltering(raceId);
+        });
+        
+        // Insert after the race filter
+        raceFilter.parentNode.insertBefore(filterBtn, raceFilter.nextSibling);
+        console.log(`Manual filter button (${buttonId}) added`);
+        console.log('=== FINISHED ADDING MANUAL FILTER BUTTON ===');
     },
     
     /**
      * Set up event listeners for result action buttons
      */
     setupResultActionListeners: function() {
+        console.log('=== SETTING UP RESULT ACTION LISTENERS ===');
+        console.log('Current type:', this.currentType);
+        
         // Make driver rows clickable to edit results
         const driverRows = document.querySelectorAll('.driver-result-row');
+        console.log('Found driver rows:', driverRows.length);
+        
         driverRows.forEach(row => {
             row.addEventListener('click', (event) => {
                 const raceId = parseInt(row.getAttribute('data-race-id'));
+                console.log('Driver row clicked, race ID:', raceId);
                 this.openRaceResultsEditor(raceId);
             });
         });
+        
+        console.log('=== FINISHED SETTING UP RESULT ACTION LISTENERS ===');
     },
     
     /**
@@ -1015,7 +1216,8 @@ const ResultsView = {
                     );
                     if (qualifyingResult) {
                         positionGainPoints = ScoringSystem.calculatePositionGainPoints(
-                            qualifyingResult.position, result.position
+                            qualifyingResult.position, 
+                            result.position
                         );
                     }
                     
@@ -1782,6 +1984,66 @@ const ResultsView = {
         } catch (error) {
             Utils.showError('Failed to delete result');
             console.error(error);
+        }
+    },
+    
+    /**
+     * Helper function to handle race filtering
+     * @param {number} raceId - Race ID to filter by
+     */
+    handleRaceFiltering: function(raceId) {
+        console.log('=== RACE FILTERING DEBUG ===');
+        console.log('Handling race filtering for race ID:', raceId);
+        console.log('Current view type:', this.currentType);
+        
+        try {
+            // Get the appropriate results data
+            let resultsData;
+            switch (this.currentType) {
+                case 'race':
+                    resultsData = appState.raceResults;
+                    console.log('Using race results data, count:', appState.raceResults.length);
+                    break;
+                case 'qualifying':
+                    resultsData = appState.qualifyingResults;
+                    console.log('Using qualifying results data, count:', appState.qualifyingResults.length);
+                    break;
+                case 'sprint':
+                    resultsData = appState.sprintResults;
+                    console.log('Using sprint results data, count:', appState.sprintResults.length);
+                    break;
+                case 'sprint-qualifying':
+                    resultsData = appState.sprintQualifyingResults;
+                    console.log('Using sprint qualifying results data, count:', appState.sprintQualifyingResults.length);
+                    break;
+                default:
+                    resultsData = appState.raceResults;
+                    console.log('Using default (race) results data, count:', appState.raceResults.length);
+            }
+            
+            // Log the actual results data
+            console.log('Results data to be filtered:', resultsData);
+            
+            // Verify that the results table exists
+            const tableId = `results-table-${this.currentType}`;
+            const resultsTable = document.getElementById(tableId);
+            console.log(`Results table element (${tableId}):`, resultsTable);
+            
+            if (!resultsTable) {
+                console.error(`Results table (${tableId}) not found in the DOM when filtering`);
+                return;
+            }
+            
+            // Log the filtered results
+            const filteredResults = raceId ? resultsData.filter(result => result.race_id === parseInt(raceId)) : resultsData;
+            console.log('Filtered results count:', filteredResults.length);
+            console.log('Filtered results:', filteredResults);
+            
+            // Render the filtered results
+            this.renderResultsTable(resultsData, raceId);
+            console.log('=== END RACE FILTERING DEBUG ===');
+        } catch (error) {
+            console.error('Error handling race filtering:', error);
         }
     }
 };
