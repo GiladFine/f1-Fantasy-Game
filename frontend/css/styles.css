@@ -154,4 +154,146 @@ body {
 
 .modal-footer {
     border-top: none;
+}
+
+/* Drag and Drop Styling */
+.driver-sortable {
+    min-height: 50px;
+    padding: 0;
+}
+
+.driver-item {
+    cursor: grab;
+    user-select: none;
+    padding: 10px 15px;
+    border-left: none;
+    border-right: none;
+    transition: background-color 0.2s;
+}
+
+.driver-item:first-child {
+    border-top: none;
+}
+
+.driver-item:last-child {
+    border-bottom: none;
+}
+
+.driver-item.dragging {
+    opacity: 0.5;
+    background-color: #f8f9fa;
+}
+
+.driver-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Available drivers should look clickable */
+.driver-item.available-driver {
+    cursor: pointer;
+    background-color: #f8f9fa;
+}
+
+.driver-item.available-driver:hover {
+    background-color: #e9ecef;
+    border-left: 2px solid #e10600;
+    padding-left: 13px; /* To compensate for the added border */
+}
+
+.driver-item .driver-handle {
+    color: #aaa;
+    cursor: grab;
+}
+
+.driver-position {
+    min-width: 26px;
+    text-align: center;
+}
+
+.drop-before {
+    border-top: 2px dashed #e10600;
+}
+
+.drop-after {
+    border-bottom: 2px dashed #e10600;
+}
+
+.driver-dnf {
+    background-color: #fff0f0;
+    color: #dc3545;
+}
+
+/* Checkbox styling */
+.inline-dnf-checkbox {
+    cursor: pointer;
+}
+
+.form-check-label.small {
+    font-size: 0.75rem;
+    margin-left: -5px;
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.driver-dnf .form-check-label.small {
+    color: #dc3545;
+}
+
+.driver-fastest-lap {
+    color: #9c27b0;
+    font-weight: bold;
+}
+
+#driver-order-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+#driver-available-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* For mobile screens */
+@media (max-width: 768px) {
+    .modal-dialog.modal-xl {
+        margin: 0.5rem;
+    }
+    
+    #driver-order-list, #driver-available-list {
+        max-height: 300px;
+    }
+}
+
+/* Race Results Table Styles */
+.race-header-row {
+    background-color: #f0f0f0;
+    border-top: 2px solid #dee2e6;
+}
+
+.race-header-row td {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.race-header-row + tr td {
+    border-top: none;
+}
+
+.race-header-row strong {
+    font-size: 1.1em;
+    color: #333;
+}
+
+/* Clickable driver rows */
+.driver-result-row {
+    transition: background-color 0.15s ease;
+}
+
+.driver-result-row:hover {
+    background-color: #f0f0f0;
+}
+
+.driver-result-row:active {
+    background-color: #e5e5e5;
 } 

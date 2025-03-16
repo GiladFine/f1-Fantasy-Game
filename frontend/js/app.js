@@ -144,6 +144,13 @@ const API = {
 const ViewManager = {
     // Switch between views
     switchView(viewName) {
+        // Check if trying to access sprint views when no sprint races exist
+        if ((viewName === 'sprint-results' || viewName === 'sprint-qualifying-results') && 
+            !appState.races.some(race => race.has_sprint)) {
+            Utils.showError('No races with sprint sessions are currently available');
+            return;
+        }
+        
         // Hide all views
         document.querySelectorAll('.view-content').forEach(view => {
             view.classList.remove('active-view');
@@ -338,7 +345,7 @@ const Utils = {
 };
 
 /**
- * Application initialization
+ * Initialize the application
  */
 async function initializeApp() {
     console.log('Initializing F1 Fantasy application...');
@@ -350,6 +357,9 @@ async function initializeApp() {
         Utils.showError('Failed to load application data. Please check if the backend server is running.');
         return;
     }
+    
+    // Show or hide sprint-related menu items based on sprint races
+    updateSprintMenuItems();
     
     // Setup navigation event listeners
     document.querySelectorAll('[data-view]').forEach(navLink => {
@@ -366,5 +376,37 @@ async function initializeApp() {
     console.log('Application initialized successfully!');
 }
 
+/**
+ * Show or hide sprint-related menu items based on whether there are races with sprints
+ */
+function updateSprintMenuItems() {
+    const hasSprintRaces = appState.races.some(race => race.has_sprint);
+    
+    // Get the sprint menu items
+    const sprintResultsItem = document.querySelector('[data-view="sprint-results"]');
+    const sprintQualifyingResultsItem = document.querySelector('[data-view="sprint-qualifying-results"]');
+    
+    if (sprintResultsItem && sprintQualifyingResultsItem) {
+        // If no sprint races, add a disabled class to indicate they're not available
+        if (!hasSprintRaces) {
+            sprintResultsItem.classList.add('text-muted');
+            sprintQualifyingResultsItem.classList.add('text-muted');
+            
+            // Add a tooltip to explain why these are disabled
+            sprintResultsItem.setAttribute('title', 'No races with sprint sessions available');
+            sprintQualifyingResultsItem.setAttribute('title', 'No races with sprint sessions available');
+        } else {
+            sprintResultsItem.classList.remove('text-muted');
+            sprintQualifyingResultsItem.classList.remove('text-muted');
+            
+            sprintResultsItem.removeAttribute('title');
+            sprintQualifyingResultsItem.removeAttribute('title');
+        }
+    }
+}
+
 // Initialize the application when the DOM is loaded
-document.addEventListener('DOMContentLoaded', initializeApp); 
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+// Make necessary objects available globally
+window.Utils = Utils; 
