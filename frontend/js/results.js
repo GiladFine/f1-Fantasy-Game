@@ -268,6 +268,18 @@ const ResultsView = {
                 self.handleRaceFiltering(raceId);
             });
             console.log(`Event listener added to race filter (${this.currentType})`);
+            
+            // Automatically select the first race (id = 1)
+            if (appState.races.some(race => race.id === 1)) {
+                console.log('Setting race filter to first race (id = 1)');
+                raceFilter.value = "1";
+                
+                // Trigger the change event to apply the filter
+                const changeEvent = new Event('change');
+                raceFilter.dispatchEvent(changeEvent);
+            } else {
+                console.log('First race (id = 1) not found in races array');
+            }
         } else {
             console.error(`Race filter element (race-filter-${this.currentType}) not found after rendering`);
         }
@@ -463,9 +475,6 @@ const ResultsView = {
                 self.handleRaceFiltering(raceId);
             });
             console.log(`Event listener added to race filter (${raceFilterId})`);
-            
-            // Add a manual filter button as a fallback
-            this.addManualFilterButton(raceFilterId);
         } else {
             console.error(`Race filter element (${raceFilterId}) not found`);
         }
@@ -511,51 +520,6 @@ const ResultsView = {
                 this.setupResultActionListeners();
             });
         });
-    },
-    
-    /**
-     * Add a manual filter button next to the race filter dropdown
-     * @param {string} raceFilterId - ID of the race filter element
-     */
-    addManualFilterButton: function(raceFilterId) {
-        console.log('=== ADDING MANUAL FILTER BUTTON ===');
-        console.log('Race filter ID:', raceFilterId);
-        
-        const raceFilter = document.getElementById(raceFilterId);
-        console.log('Race filter element:', raceFilter);
-        
-        if (!raceFilter) {
-            console.error(`Race filter element (${raceFilterId}) not found`);
-            return;
-        }
-        
-        // Check if button already exists
-        const buttonId = `manual-filter-btn-${this.currentType}`;
-        if (document.getElementById(buttonId)) {
-            console.log(`Manual filter button (${buttonId}) already exists`);
-            return;
-        }
-        
-        // Create a button
-        const filterBtn = document.createElement('button');
-        filterBtn.id = buttonId;
-        filterBtn.className = 'btn btn-outline-primary btn-sm ms-2';
-        filterBtn.textContent = 'Apply Filter';
-        
-        // Add click event
-        const self = this;
-        filterBtn.addEventListener('click', function() {
-            const raceId = raceFilter.value ? parseInt(raceFilter.value) : null;
-            console.log(`Manual filter button (${self.currentType}) clicked, race ID:`, raceId);
-            
-            // Use the helper function to handle filtering
-            self.handleRaceFiltering(raceId);
-        });
-        
-        // Insert after the race filter
-        raceFilter.parentNode.insertBefore(filterBtn, raceFilter.nextSibling);
-        console.log(`Manual filter button (${buttonId}) added`);
-        console.log('=== FINISHED ADDING MANUAL FILTER BUTTON ===');
     },
     
     /**
