@@ -5,7 +5,7 @@
     "position": 1,
     "fastest_lap": true,
     "finished": true,
-    "fantasy_points": 26,
+    "fantasy_points": 28,
     "id": 1
   },
   {
@@ -14,7 +14,7 @@
     "position": 2,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 18,
+    "fantasy_points": 21,
     "id": 2
   },
   {
@@ -23,7 +23,7 @@
     "position": 3,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 15,
+    "fantasy_points": 18,
     "id": 3
   },
   {
@@ -32,7 +32,7 @@
     "position": 4,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 12,
+    "fantasy_points": 24,
     "id": 4
   },
   {
@@ -41,7 +41,7 @@
     "position": 5,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 10,
+    "fantasy_points": 13,
     "id": 5
   },
   {
@@ -50,7 +50,7 @@
     "position": 6,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 8,
+    "fantasy_points": 17,
     "id": 6
   },
   {
@@ -59,7 +59,7 @@
     "position": 7,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 6,
+    "fantasy_points": 18,
     "id": 7
   },
   {
@@ -68,7 +68,7 @@
     "position": 8,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 4,
+    "fantasy_points": 6,
     "id": 8
   },
   {
@@ -95,7 +95,7 @@
     "position": 11,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 0,
+    "fantasy_points": 2,
     "id": 11
   },
   {
@@ -104,7 +104,7 @@
     "position": 12,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 0,
+    "fantasy_points": 2,
     "id": 12
   },
   {
@@ -113,7 +113,7 @@
     "position": 13,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 0,
+    "fantasy_points": 8,
     "id": 13
   },
   {
@@ -122,7 +122,7 @@
     "position": 14,
     "fastest_lap": false,
     "finished": true,
-    "fantasy_points": 0,
+    "fantasy_points": 6,
     "id": 14
   },
   {
@@ -131,7 +131,7 @@
     "position": 15,
     "fastest_lap": false,
     "finished": false,
-    "fantasy_points": -5,
+    "fantasy_points": -2,
     "id": 15
   },
   {
@@ -164,7 +164,7 @@
   {
     "race_id": 1,
     "driver_id": 18,
-    "position": 19,
+    "position": 20,
     "fastest_lap": false,
     "finished": false,
     "fantasy_points": -5,
@@ -173,7 +173,7 @@
   {
     "race_id": 1,
     "driver_id": 12,
-    "position": 20,
+    "position": 19,
     "fastest_lap": false,
     "finished": false,
     "fantasy_points": -5,
