@@ -27,6 +27,9 @@ const Dashboard = {
             const points = driverPointsMap[driver.id] || { race: 0, qualifying: 0, sprint: 0, sprintQualifying: 0, details: [] };
             // Use collectDetailedStats to get accurate totals from details
             const stats = this.collectDetailedStats(points);
+            
+            // We no longer use points.sprint directly, as it's correctly calculated from details
+            // We also don't directly use sprintQualifying from points to avoid double counting
             driverTotalPointsMap[driver.id] = points.race + points.qualifying + stats.sprintPoints + stats.sprintQualifyingPoints;
         });
         
@@ -138,6 +141,9 @@ const Dashboard = {
             
             // Use collectDetailedStats to get accurate totals from details
             const stats = this.collectDetailedStats(points);
+            
+            // We no longer use points.sprint directly, as it's correctly calculated from details
+            // We also don't directly use sprintQualifying from points to avoid double counting
             const totalPoints = points.race + points.qualifying + stats.sprintPoints + stats.sprintQualifyingPoints;
             
             return {
@@ -679,8 +685,9 @@ const Dashboard = {
             }
         }
         
-        // Total
-        html += `<div style="margin-top: 8px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 5px;">Total: ${breakdown.race + breakdown.qualifying + stats.sprintPoints + stats.sprintQualifyingPoints} points</div>`;
+        // Total - now calculated directly from the stats object to match the driver standings calculation
+        const totalPoints = breakdown.race + breakdown.qualifying + stats.sprintPoints + stats.sprintQualifyingPoints;
+        html += `<div style="margin-top: 8px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 5px;">Total: ${totalPoints} points</div>`;
         
         html += '</div>';
         
@@ -696,7 +703,7 @@ const Dashboard = {
         const stats = {
             racePositions: [],
             qualifyingPositions: [],
-            sprintPositions: [], // Added array to track sprint race positions
+            sprintPositions: [], // Track sprint race positions
             sprintQualifyingPositions: [],
             raceMatchupWins: 0,
             qualifyingMatchupWins: 0,
@@ -707,8 +714,8 @@ const Dashboard = {
             sprintPositionsGained: 0, // Track sprint positions gained separately
             sprintPositionsGainedPoints: 0, // Track sprint position gain points separately
             fastestLaps: 0,
-            sprintPoints: 0, // We'll calculate this from details instead, not using breakdown.sprint
-            sprintQualifyingPoints: 0,
+            sprintPoints: 0, // We'll calculate this from details instead
+            sprintQualifyingPoints: 0, // We'll calculate this from details instead 
             sprintMatchupWins: 0,
             sprintQualifyingMatchupWins: 0
         };
@@ -716,8 +723,12 @@ const Dashboard = {
         // Process race details
         const racePositionCounts = {};
         const qualifyingPositionCounts = {};
-        const sprintPositionCounts = {}; // Added object to track sprint race positions
+        const sprintPositionCounts = {}; // Track sprint race positions
         const sprintQualifyingPositionCounts = {};
+        
+        // Reset sprint points counters to ensure no double counting
+        stats.sprintPoints = 0;
+        stats.sprintQualifyingPoints = 0;
         
         breakdown.details.forEach(detail => {
             if (detail.type === 'Race') {
@@ -796,7 +807,7 @@ const Dashboard = {
                 sprintPositionCounts[position].count++;
                 sprintPositionCounts[position].points += detail.breakdown.basePoints;
                 
-                // Add to total sprint points
+                // Add to total sprint points - calculate from detail.breakdown.total
                 stats.sprintPoints += detail.breakdown.total;
                 
                 // Count sprint matchup wins
