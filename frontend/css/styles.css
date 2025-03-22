@@ -160,6 +160,14 @@ body {
 .driver-sortable {
     min-height: 50px;
     padding: 0;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.driver-sortable.highlight-empty {
+    border: 2px dashed #e10600;
+    background-color: rgba(225, 6, 0, 0.05);
+    border-radius: 4px;
 }
 
 .driver-item {
@@ -168,7 +176,8 @@ body {
     padding: 10px 15px;
     border-left: none;
     border-right: none;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.15s, box-shadow 0.15s;
+    position: relative;
 }
 
 .driver-item:first-child {
@@ -180,8 +189,11 @@ body {
 }
 
 .driver-item.dragging {
-    opacity: 0.5;
+    opacity: 0.7;
     background-color: #f8f9fa;
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
 }
 
 .driver-item:hover {
@@ -205,17 +217,43 @@ body {
     cursor: grab;
 }
 
+.driver-item .driver-handle:hover {
+    color: #666;
+}
+
 .driver-position {
     min-width: 26px;
     text-align: center;
 }
 
 .drop-before {
-    border-top: 2px dashed #e10600;
+    position: relative;
+}
+
+.drop-before::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #e10600;
+    border-radius: 3px;
 }
 
 .drop-after {
-    border-bottom: 2px dashed #e10600;
+    position: relative;
+}
+
+.drop-after::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #e10600;
+    border-radius: 3px;
 }
 
 .driver-dnf {

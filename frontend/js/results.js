@@ -708,7 +708,13 @@ const ResultsView = {
                                 
                                 <div class="mt-4">
                                     <h6>Arrange Drivers in Finishing Order</h6>
-                                    <p class="text-muted small">Drag and drop drivers to arrange them in the correct finishing order.</p>
+                                    <p class="text-muted small">Drag and drop drivers to arrange them in the correct finishing order. You can:
+                                        <ul class="text-muted small mb-2">
+                                            <li>Click drivers in Available Drivers list to add them to the order</li>
+                                            <li>Drag drivers within the Driver Order list to reorder them</li>
+                                            <li>Drag drivers back to the Available Drivers list if you added them by mistake</li>
+                                        </ul>
+                                    </p>
                                     
                                     <div class="row">
                                         <div class="col-md-8">
@@ -938,8 +944,41 @@ const ResultsView = {
         const driver = Utils.getDriverById(driverId);
         if (!driver) return;
         
-        // Create a new list item for the order list with isOrderList=true
-        const newOrderItem = this.createDriverListItem(driver, true);
+        // Instead of creating a new list item, modify the existing one to be suitable for the order list
+        // First, remove the click event listener by cloning the node (this is important to prevent double-adding)
+        const newOrderItem = driverItem.cloneNode(true);
+        
+        // Add any order-list specific elements
+        if (this.currentType === 'race') {
+            // Add DNF checkbox for race results
+            const contentDiv = newOrderItem.querySelector('.d-flex');
+            if (contentDiv) {
+                // Create DNF checkbox container
+                const dnfContainer = document.createElement('div');
+                dnfContainer.className = 'form-check me-2';
+                
+                const dnfCheckbox = document.createElement('input');
+                dnfCheckbox.type = 'checkbox';
+                dnfCheckbox.className = 'form-check-input inline-dnf-checkbox';
+                dnfCheckbox.id = `inline-dnf-${driver.id}`;
+                dnfCheckbox.setAttribute('data-driver-id', driver.id);
+                
+                const dnfLabel = document.createElement('label');
+                dnfLabel.className = 'form-check-label small';
+                dnfLabel.htmlFor = `inline-dnf-${driver.id}`;
+                dnfLabel.textContent = 'DNF';
+                
+                dnfContainer.appendChild(dnfCheckbox);
+                dnfContainer.appendChild(dnfLabel);
+                
+                contentDiv.appendChild(dnfContainer);
+                
+                // Add event listener for the DNF checkbox
+                dnfCheckbox.addEventListener('change', e => {
+                    this.handleInlineDNFCheck(e.target);
+                });
+            }
+        }
         
         // Append to the order list
         orderList.appendChild(newOrderItem);
@@ -955,6 +994,9 @@ const ResultsView = {
             this.updateDNFCheckboxes();
             this.updateFastestLapOptions();
         }
+        
+        // Re-initialize drag and drop to ensure the new item has proper event listeners
+        this.initDragAndDrop();
     },
     
     /**
@@ -1064,6 +1106,19 @@ const ResultsView = {
             } else {
                 target.classList.add('drop-after');
             }
+        } else if (target.classList.contains('driver-sortable')) {
+            // If hovering over the empty part of the list, prepare to append at the end
+            document.querySelectorAll('.drop-before, .drop-after').forEach(el => {
+                el.classList.remove('drop-before', 'drop-after');
+            });
+            
+            // If list is empty or hovering at the end, show indicator at the bottom
+            const lastItem = target.querySelector('.driver-item:last-child');
+            if (lastItem) {
+                lastItem.classList.add('drop-after');
+            } else {
+                target.classList.add('highlight-empty');
+            }
         }
     },
     
@@ -1075,8 +1130,8 @@ const ResultsView = {
         e.preventDefault();
         
         // Clear drop indicators
-        document.querySelectorAll('.drop-before, .drop-after').forEach(el => {
-            el.classList.remove('drop-before', 'drop-after');
+        document.querySelectorAll('.drop-before, .drop-after, .highlight-empty').forEach(el => {
+            el.classList.remove('drop-before', 'drop-after', 'highlight-empty');
         });
         
         // Get the dragged driver id
@@ -1088,20 +1143,87 @@ const ResultsView = {
         const targetList = e.target.closest('.driver-sortable');
         if (!targetList) return;
         
+        // If dropping in the same list (reordering in Driver Order list)
+        const sourceList = draggedItem.parentNode;
+        
         // Determine position within the list
         const targetItem = e.target.closest('.driver-item');
         if (targetItem) {
-            const rect = targetItem.getBoundingClientRect();
-            const midpoint = (rect.top + rect.bottom) / 2;
-            
-            if (e.clientY < midpoint) {
-                targetList.insertBefore(draggedItem, targetItem);
-            } else {
-                targetList.insertBefore(draggedItem, targetItem.nextSibling);
+            // Make sure we're not dropping an item on itself
+            if (targetItem !== draggedItem) {
+                const rect = targetItem.getBoundingClientRect();
+                const midpoint = (rect.top + rect.bottom) / 2;
+                
+                if (e.clientY < midpoint) {
+                    targetList.insertBefore(draggedItem, targetItem);
+                } else {
+                    targetList.insertBefore(draggedItem, targetItem.nextSibling);
+                }
             }
         } else {
             // If dropped directly on the list (not on an item)
             targetList.appendChild(draggedItem);
+        }
+        
+        // If moving between lists (available to order or vice versa)
+        if (sourceList !== targetList) {
+            // Update the item style classes based on the target list
+            if (targetList.id === 'driver-order-list') {
+                // Moving to order list, add order-specific styling
+                if (this.currentType === 'race' && !draggedItem.querySelector('.inline-dnf-checkbox')) {
+                    // Add DNF checkbox if needed
+                    const driver = Utils.getDriverById(parseInt(driverId));
+                    if (driver) {
+                        const contentDiv = draggedItem.querySelector('.d-flex');
+                        if (contentDiv) {
+                            // Create DNF checkbox container
+                            const dnfContainer = document.createElement('div');
+                            dnfContainer.className = 'form-check me-2';
+                            
+                            const dnfCheckbox = document.createElement('input');
+                            dnfCheckbox.type = 'checkbox';
+                            dnfCheckbox.className = 'form-check-input inline-dnf-checkbox';
+                            dnfCheckbox.id = `inline-dnf-${driver.id}`;
+                            dnfCheckbox.setAttribute('data-driver-id', driver.id);
+                            
+                            const dnfLabel = document.createElement('label');
+                            dnfLabel.className = 'form-check-label small';
+                            dnfLabel.htmlFor = `inline-dnf-${driver.id}`;
+                            dnfLabel.textContent = 'DNF';
+                            
+                            dnfContainer.appendChild(dnfCheckbox);
+                            dnfContainer.appendChild(dnfLabel);
+                            
+                            contentDiv.appendChild(dnfContainer);
+                            
+                            // Add event listener for the DNF checkbox
+                            dnfCheckbox.addEventListener('change', e => {
+                                this.handleInlineDNFCheck(e.target);
+                            });
+                        }
+                    }
+                }
+                
+                // Remove the available-driver class
+                draggedItem.classList.remove('available-driver');
+            } else if (targetList.id === 'driver-available-list') {
+                // Moving to available list, remove order-specific styling
+                const dnfCheckbox = draggedItem.querySelector('.inline-dnf-checkbox');
+                if (dnfCheckbox) {
+                    const container = dnfCheckbox.closest('.form-check');
+                    if (container) {
+                        container.remove();
+                    }
+                }
+                
+                // Add click handler
+                draggedItem.addEventListener('click', () => {
+                    this.addDriverToOrder(parseInt(driverId));
+                });
+                
+                // Add the available-driver class
+                draggedItem.classList.add('available-driver');
+            }
         }
         
         // Update position numbers
@@ -1750,7 +1872,13 @@ const ResultsView = {
                                 
                                 <div class="mt-4">
                                     <h6>Arrange Drivers in Finishing Order</h6>
-                                    <p class="text-muted small">Drag and drop drivers to rearrange the finishing order.</p>
+                                    <p class="text-muted small">Drag and drop drivers to rearrange the finishing order. You can:
+                                        <ul class="text-muted small mb-2">
+                                            <li>Click drivers in Available Drivers list to add them to the order</li>
+                                            <li>Drag drivers within the Driver Order list to reorder them</li>
+                                            <li>Drag drivers back to the Available Drivers list if you added them by mistake</li>
+                                        </ul>
+                                    </p>
                                     
                                     <div class="row">
                                         <div class="col-md-8">
