@@ -141,6 +141,28 @@ const ScoringSystem = {
     },
     
     /**
+     * Calculate total fantasy points for a driver in a sprint race
+     * @param {Object} sprintResult - Sprint race result object
+     * @param {Object} qualifyingResult - Qualifying or sprint qualifying result object
+     * @returns {number} - Total fantasy points
+     */
+    calculateDriverSprintFantasyPoints: function(sprintResult, qualifyingResult) {
+        // Sprint race points
+        let totalPoints = this.calculateSprintPoints(sprintResult.position);
+        
+        // Position gain points - 1 point per position gained, just like in main races
+        totalPoints += this.calculatePositionGainPoints(
+            qualifyingResult.position,
+            sprintResult.position
+        );
+        
+        // DNF penalty
+        totalPoints += this.calculateDNFPenalty(sprintResult.finished);
+        
+        return totalPoints;
+    },
+    
+    /**
      * Calculate total fantasy points for a team across all events
      * @param {Array} teamDriverIds - Array of driver IDs in the team
      * @param {Array} allResults - All results data

@@ -447,11 +447,27 @@ const Dashboard = {
         const breakdown = {
             basePoints: 0,
             teammatePoints: 0,
+            positionGainPoints: 0,
+            positionsGained: 0,
             total: 0
         };
         
         // Base sprint points
         breakdown.basePoints = ScoringSystem.calculateSprintPoints(result.position);
+        
+        // Position gain points for sprint races
+        const sprintQualifyingResult = appState.sprintQualifyingResults.find(sqr => 
+            sqr.race_id === result.race_id && sqr.driver_id === result.driver_id
+        );
+        
+        if (sprintQualifyingResult) {
+            const positionsGained = sprintQualifyingResult.position - result.position;
+            breakdown.positionGainPoints = ScoringSystem.calculatePositionGainPoints(
+                sprintQualifyingResult.position, 
+                result.position
+            );
+            breakdown.positionsGained = positionsGained > 0 ? positionsGained : 0;
+        }
         
         // Teammate points - each constructor has only 2 drivers
         const driver = Utils.getDriverById(result.driver_id);
@@ -493,7 +509,7 @@ const Dashboard = {
         }
         
         // Calculate total
-        breakdown.total = breakdown.basePoints + breakdown.teammatePoints;
+        breakdown.total = breakdown.basePoints + breakdown.teammatePoints + breakdown.positionGainPoints;
         
         return breakdown;
     },
@@ -625,7 +641,7 @@ const Dashboard = {
         }
         
         // SPRINT RACE SECTION
-        if (sprintPositionsWithPoints.length > 0 || stats.sprintMatchupWins > 0) {
+        if (sprintPositionsWithPoints.length > 0 || stats.sprintMatchupWins > 0 || stats.sprintPositionsGained > 0) {
             html += '<div style="margin-top: 8px; margin-bottom: 5px;"><strong>Sprint Race:</strong></div>';
             
             // Sprint Race Positions
@@ -638,6 +654,11 @@ const Dashboard = {
             // Sprint matchup wins
             if (stats.sprintMatchupWins > 0) {
                 html += `<div>${stats.sprintMatchupWins} sprint matchup wins - +${stats.sprintMatchupWins * 2} points</div>`;
+            }
+            
+            // Sprint positions gained
+            if (stats.sprintPositionsGained > 0 && stats.sprintPositionsGainedPoints > 0) {
+                html += `<div>${stats.sprintPositionsGained} positions gained - +${stats.sprintPositionsGainedPoints} points</div>`;
             }
         }
         
@@ -683,6 +704,8 @@ const Dashboard = {
             dnfPoints: 0,
             positionsGained: 0,
             positionsGainedPoints: 0,
+            sprintPositionsGained: 0, // Track sprint positions gained separately
+            sprintPositionsGainedPoints: 0, // Track sprint position gain points separately
             fastestLaps: 0,
             sprintPoints: 0, // We'll calculate this from details instead, not using breakdown.sprint
             sprintQualifyingPoints: 0,
@@ -779,6 +802,12 @@ const Dashboard = {
                 // Count sprint matchup wins
                 if (detail.breakdown.teammatePoints > 0) {
                     stats.sprintMatchupWins++;
+                }
+                
+                // Count positions gained in sprint
+                if (detail.breakdown.positionsGained > 0) {
+                    stats.sprintPositionsGained += detail.breakdown.positionsGained;
+                    stats.sprintPositionsGainedPoints += detail.breakdown.positionGainPoints;
                 }
             }
         });

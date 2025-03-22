@@ -1659,6 +1659,20 @@ const ResultsView = {
             case 'sprint':
                 breakdown.basePoints = ScoringSystem.calculateSprintPoints(result.position);
                 
+                // Calculate position gain points for sprint races
+                const sprintQualifyingResult = appState.sprintQualifyingResults.find(sqr => 
+                    sqr.race_id === result.race_id && sqr.driver_id === result.driver_id
+                );
+                
+                if (sprintQualifyingResult) {
+                    const positionsGained = sprintQualifyingResult.position - result.position;
+                    breakdown.positionGainPoints = ScoringSystem.calculatePositionGainPoints(
+                        sprintQualifyingResult.position, 
+                        result.position
+                    );
+                    breakdown.positionsGained = positionsGained > 0 ? positionsGained : 0;
+                }
+                
                 // Add teammate points for sprint
                 const sprintDriver = Utils.getDriverById(result.driver_id);
                 if (sprintDriver && sprintDriver.constructor) {
@@ -1781,6 +1795,10 @@ const ResultsView = {
             tooltipHtml += `<div class="fw-bold mt-1">Total: ${breakdown.total} points</div>`;
         } else if (this.currentType === 'sprint') {
             tooltipHtml += `<div>Position P${result.position}: ${breakdown.basePoints} points</div>`;
+            
+            if (breakdown.positionGainPoints > 0) {
+                tooltipHtml += `<div>Positions Gained (${breakdown.positionsGained}): +${breakdown.positionGainPoints} points</div>`;
+            }
             
             if (breakdown.teammatePoints > 0) {
                 tooltipHtml += `<div>Teammate Matchup Win: +${breakdown.teammatePoints} points</div>`;
