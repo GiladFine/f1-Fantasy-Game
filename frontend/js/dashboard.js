@@ -25,7 +25,9 @@ const Dashboard = {
         const driverTotalPointsMap = {};
         appState.drivers.forEach(driver => {
             const points = driverPointsMap[driver.id] || { race: 0, qualifying: 0, sprint: 0, sprintQualifying: 0, details: [] };
-            driverTotalPointsMap[driver.id] = points.race + points.qualifying + points.sprint + points.sprintQualifying;
+            // Use collectDetailedStats to get accurate totals from details
+            const stats = this.collectDetailedStats(points);
+            driverTotalPointsMap[driver.id] = points.race + points.qualifying + stats.sprintPoints + stats.sprintQualifyingPoints;
         });
         
         // Calculate team points
@@ -133,7 +135,10 @@ const Dashboard = {
         // Convert to array and sort by total points
         const driverStandings = appState.drivers.map(driver => {
             const points = driverPointsMap[driver.id] || { race: 0, qualifying: 0, sprint: 0, sprintQualifying: 0, details: [] };
-            const totalPoints = points.race + points.qualifying + points.sprint + points.sprintQualifying;
+            
+            // Use collectDetailedStats to get accurate totals from details
+            const stats = this.collectDetailedStats(points);
+            const totalPoints = points.race + points.qualifying + stats.sprintPoints + stats.sprintQualifyingPoints;
             
             return {
                 driver: driver,
@@ -203,7 +208,7 @@ const Dashboard = {
                 race: 0,
                 qualifying: 0,
                 sprint: 0,
-                sprintQualifying: 0,
+                sprintQualifying: 0, // We'll rely on collectDetailedStats to calculate this correctly
                 details: []
             };
         });
@@ -267,7 +272,8 @@ const Dashboard = {
             const driver_id = result.driver_id;
             if (driverPoints[driver_id]) {
                 const breakdown = this.calculateSprintQualifyingPointsBreakdown(result);
-                driverPoints[driver_id].sprintQualifying += breakdown.total;
+                // Note: We don't add to sprintQualifying directly to avoid double counting
+                // We'll calculate this value from the details in collectDetailedStats
                 
                 // Add details for tooltip
                 driverPoints[driver_id].details.push({
@@ -566,6 +572,7 @@ const Dashboard = {
         // Filter out positions with 0 points
         const racePositionsWithPoints = stats.racePositions.filter(pos => pos.points > 0);
         const qualifyingPositionsWithPoints = stats.qualifyingPositions.filter(pos => pos.points > 0);
+        const sprintQualifyingPositionsWithPoints = stats.sprintQualifyingPositions.filter(pos => pos.points > 0);
         
         // Generate HTML for detailed statistics
         if (racePositionsWithPoints.length > 0) {
@@ -582,12 +589,27 @@ const Dashboard = {
             });
         }
         
+        if (sprintQualifyingPositionsWithPoints.length > 0) {
+            html += '<div style="margin-top: 8px; margin-bottom: 5px;"><strong>Sprint Qualifying Positions:</strong></div>';
+            sprintQualifyingPositionsWithPoints.forEach(pos => {
+                html += `<div>${pos.count} P${pos.position} - +${pos.points} points</div>`;
+            });
+        }
+        
         if (stats.raceMatchupWins > 0) {
             html += `<div>${stats.raceMatchupWins} race matchup wins - +${stats.raceMatchupWins * 2} points</div>`;
         }
         
         if (stats.qualifyingMatchupWins > 0) {
             html += `<div>${stats.qualifyingMatchupWins} qualifying matchup wins - +${stats.qualifyingMatchupWins * 2} points</div>`;
+        }
+        
+        if (stats.sprintQualifyingMatchupWins > 0) {
+            html += `<div>${stats.sprintQualifyingMatchupWins} sprint qualifying matchup wins - +${stats.sprintQualifyingMatchupWins * 2} points</div>`;
+        }
+        
+        if (stats.sprintMatchupWins > 0) {
+            html += `<div>${stats.sprintMatchupWins} sprint matchup wins - +${stats.sprintMatchupWins * 2} points</div>`;
         }
         
         if (stats.dnfCount > 0) {
@@ -604,16 +626,11 @@ const Dashboard = {
         
         // Sprint results if any
         if (stats.sprintPoints > 0) {
-            html += `<div style="margin-top: 8px;"><strong>Sprint points:</strong> ${stats.sprintPoints} points</div>`;
-        }
-        
-        // Sprint qualifying results if any
-        if (stats.sprintQualifyingPoints > 0) {
-            html += `<div><strong>Sprint qualifying points:</strong> ${stats.sprintQualifyingPoints} points</div>`;
+            html += `<div style="margin-top: 8px;"><strong>Sprint race points:</strong> ${stats.sprintPoints} points</div>`;
         }
         
         // Total
-        html += `<div style="margin-top: 8px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 5px;">Total: ${breakdown.race + breakdown.qualifying + breakdown.sprint + breakdown.sprintQualifying} points</div>`;
+        html += `<div style="margin-top: 8px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 5px;">Total: ${breakdown.race + breakdown.qualifying + stats.sprintPoints + stats.sprintQualifyingPoints} points</div>`;
         
         html += '</div>';
         
@@ -637,12 +654,16 @@ const Dashboard = {
             positionsGainedPoints: 0,
             fastestLaps: 0,
             sprintPoints: breakdown.sprint || 0,
-            sprintQualifyingPoints: breakdown.sprintQualifying || 0
+            sprintQualifyingPoints: 0, // We'll calculate this from details instead
+            sprintQualifyingPositions: [], // New array to track sprint qualifying positions
+            sprintMatchupWins: 0, // New counter for sprint matchup wins
+            sprintQualifyingMatchupWins: 0 // New counter for sprint qualifying matchup wins
         };
         
         // Process race details
         const racePositionCounts = {};
         const qualifyingPositionCounts = {};
+        const sprintQualifyingPositionCounts = {}; // New object to track sprint qualifying positions
         
         breakdown.details.forEach(detail => {
             if (detail.type === 'Race') {
@@ -692,6 +713,32 @@ const Dashboard = {
                 if (detail.breakdown.teammatePoints > 0) {
                     stats.qualifyingMatchupWins++;
                 }
+            } else if (detail.type === 'Sprint Qualifying') {
+                // Track sprint qualifying positions properly
+                const position = detail.position;
+                if (!sprintQualifyingPositionCounts[position]) {
+                    sprintQualifyingPositionCounts[position] = { count: 0, points: 0 };
+                }
+                
+                // Add base points to position count
+                sprintQualifyingPositionCounts[position].count++;
+                sprintQualifyingPositionCounts[position].points += detail.breakdown.basePoints;
+                
+                // Add to total sprint qualifying points
+                stats.sprintQualifyingPoints += detail.breakdown.total;
+                
+                // Count sprint qualifying matchup wins
+                if (detail.breakdown.teammatePoints > 0) {
+                    stats.sprintQualifyingMatchupWins++;
+                }
+            } else if (detail.type === 'Sprint') {
+                // We're already capturing Sprint points outside this loop
+                // sprintPoints is set to breakdown.sprint
+                
+                // But we could count sprint matchup wins if needed
+                if (detail.breakdown.teammatePoints > 0) {
+                    stats.sprintMatchupWins++;
+                }
             }
         });
         
@@ -713,9 +760,19 @@ const Dashboard = {
             });
         }
         
+        // Convert sprint qualifying position counts to array and sort
+        for (const position in sprintQualifyingPositionCounts) {
+            stats.sprintQualifyingPositions.push({
+                position: parseInt(position),
+                count: sprintQualifyingPositionCounts[position].count,
+                points: sprintQualifyingPositionCounts[position].points
+            });
+        }
+        
         // Sort positions by position number
         stats.racePositions.sort((a, b) => a.position - b.position);
         stats.qualifyingPositions.sort((a, b) => a.position - b.position);
+        stats.sprintQualifyingPositions.sort((a, b) => a.position - b.position);
         
         return stats;
     }

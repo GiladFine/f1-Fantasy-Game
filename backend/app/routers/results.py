@@ -205,6 +205,16 @@ async def create_sprint_qualifying_result(result: Dict[str, Any]):
     """Create a new sprint qualifying result"""
     results = read_data(SPRINT_QUALIFYING_RESULTS_FILE)
     
+    # Check if a result for this driver in this race already exists
+    for existing_result in results:
+        if (existing_result["race_id"] == result["race_id"] and 
+            existing_result["driver_id"] == result["driver_id"]):
+            # Found a duplicate, return an error
+            raise HTTPException(
+                status_code=400,
+                detail=f"A sprint qualifying result for driver {result['driver_id']} in race {result['race_id']} already exists"
+            )
+    
     # Assign a new ID (max existing ID + 1)
     result_ids = [r["id"] for r in results]
     result["id"] = max(result_ids or [0]) + 1

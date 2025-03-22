@@ -1297,19 +1297,25 @@ const ResultsView = {
         });
         
         try {
-            // Check for existing results for this race
+            // Show a loading indicator or message
+            Utils.showSuccess('Saving results...');
+            
+            // First, delete existing results
             const existingResults = this.getResultsArray().filter(r => r.race_id === raceId);
             if (existingResults.length > 0) {
                 console.warn(`Found ${existingResults.length} existing results for race ${raceId}. These will be replaced.`);
                 
                 // Delete existing results first to avoid duplicates
-                for (const result of existingResults) {
-                    const endpoint = this.getResultEndpoint();
-                    await API.deleteData(`${endpoint}/${result.id}`);
-                    console.log(`Deleted existing result ID ${result.id} for race ${raceId}`);
-                }
+                const endpoint = this.getResultEndpoint();
+                const deletePromises = existingResults.map(result => 
+                    API.deleteData(`${endpoint}/${result.id}`)
+                );
                 
-                // Also remove from app state
+                // Wait for all deletions to complete
+                await Promise.all(deletePromises);
+                console.log(`Deleted ${existingResults.length} existing results for race ${raceId}`);
+                
+                // Update app state
                 const newResultsArray = this.getResultsArray().filter(r => r.race_id !== raceId);
                 switch (this.currentType) {
                     case 'race':
@@ -1327,15 +1333,7 @@ const ResultsView = {
                 }
             }
             
-            // Create all results
-            const endpoint = this.getResultEndpoint();
-            const savedResults = [];
-            
-            // Show a loading indicator or message
-            Utils.showSuccess('Saving results...');
-            
             // Calculate fantasy points for all results
-            // We need to do this after all results are prepared to calculate teammate comparisons correctly
             if (this.currentType === 'race') {
                 // Use the results array directly
                 const allResults = results;
@@ -1364,13 +1362,24 @@ const ResultsView = {
                 });
             }
             
+            // Save all results
+            const endpoint = this.getResultEndpoint();
+            const savedResults = [];
+            
             // Use Promise.all to create all results in parallel
-            await Promise.all(results.map(async (result) => {
-                const savedResult = await API.postData(endpoint, result);
-                if (savedResult) {
-                    savedResults.push(savedResult);
+            const createPromises = results.map(result => 
+                API.postData(endpoint, result)
+            );
+            
+            // Wait for all creations to complete
+            const createdResults = await Promise.all(createPromises);
+            
+            // Add successful results to savedResults
+            createdResults.forEach(result => {
+                if (result) {
+                    savedResults.push(result);
                 }
-            }));
+            });
             
             // Add to app state
             const resultsArray = this.getResultsArray();
