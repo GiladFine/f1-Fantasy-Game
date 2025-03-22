@@ -1,1 +1,142 @@
-[]
+[
+  {
+    "race_id": 2,
+    "driver_id": 4,
+    "position": 1,
+    "fantasy_points": 8,
+    "id": 1
+  },
+  {
+    "race_id": 2,
+    "driver_id": 2,
+    "position": 2,
+    "fantasy_points": 7,
+    "id": 2
+  },
+  {
+    "race_id": 2,
+    "driver_id": 5,
+    "position": 3,
+    "fantasy_points": 6,
+    "id": 3
+  },
+  {
+    "race_id": 2,
+    "driver_id": 7,
+    "position": 4,
+    "fantasy_points": 5,
+    "id": 4
+  },
+  {
+    "race_id": 2,
+    "driver_id": 3,
+    "position": 5,
+    "fantasy_points": 4,
+    "id": 5
+  },
+  {
+    "race_id": 2,
+    "driver_id": 17,
+    "position": 6,
+    "fantasy_points": 3,
+    "id": 6
+  },
+  {
+    "race_id": 2,
+    "driver_id": 8,
+    "position": 7,
+    "fantasy_points": 2,
+    "id": 7
+  },
+  {
+    "race_id": 2,
+    "driver_id": 1,
+    "position": 8,
+    "fantasy_points": 1,
+    "id": 8
+  },
+  {
+    "race_id": 2,
+    "driver_id": 10,
+    "position": 9,
+    "fantasy_points": 0,
+    "id": 9
+  },
+  {
+    "race_id": 2,
+    "driver_id": 9,
+    "position": 10,
+    "fantasy_points": 0,
+    "id": 10
+  },
+  {
+    "race_id": 2,
+    "driver_id": 16,
+    "position": 11,
+    "fantasy_points": 0,
+    "id": 11
+  },
+  {
+    "race_id": 2,
+    "driver_id": 11,
+    "position": 12,
+    "fantasy_points": 0,
+    "id": 12
+  },
+  {
+    "race_id": 2,
+    "driver_id": 18,
+    "position": 13,
+    "fantasy_points": 0,
+    "id": 13
+  },
+  {
+    "race_id": 2,
+    "driver_id": 6,
+    "position": 14,
+    "fantasy_points": 0,
+    "id": 14
+  },
+  {
+    "race_id": 2,
+    "driver_id": 14,
+    "position": 15,
+    "fantasy_points": 0,
+    "id": 15
+  },
+  {
+    "race_id": 2,
+    "driver_id": 13,
+    "position": 16,
+    "fantasy_points": 0,
+    "id": 16
+  },
+  {
+    "race_id": 2,
+    "driver_id": 15,
+    "position": 17,
+    "fantasy_points": 0,
+    "id": 17
+  },
+  {
+    "race_id": 2,
+    "driver_id": 20,
+    "position": 18,
+    "fantasy_points": 0,
+    "id": 18
+  },
+  {
+    "race_id": 2,
+    "driver_id": 19,
+    "position": 19,
+    "fantasy_points": 0,
+    "id": 19
+  },
+  {
+    "race_id": 2,
+    "driver_id": 12,
+    "position": 20,
+    "fantasy_points": 0,
+    "id": 20
+  }
+]
