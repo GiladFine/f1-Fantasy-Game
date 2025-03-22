@@ -572,61 +572,90 @@ const Dashboard = {
         // Filter out positions with 0 points
         const racePositionsWithPoints = stats.racePositions.filter(pos => pos.points > 0);
         const qualifyingPositionsWithPoints = stats.qualifyingPositions.filter(pos => pos.points > 0);
+        const sprintPositionsWithPoints = stats.sprintPositions.filter(pos => pos.points > 0);
         const sprintQualifyingPositionsWithPoints = stats.sprintQualifyingPositions.filter(pos => pos.points > 0);
         
-        // Generate HTML for detailed statistics
-        if (racePositionsWithPoints.length > 0) {
-            html += '<div style="margin-bottom: 5px;"><strong>Race Positions:</strong></div>';
-            racePositionsWithPoints.forEach(pos => {
-                html += `<div>${pos.count} P${pos.position} - +${pos.points} points</div>`;
-            });
+        // Generate HTML for detailed statistics - RACE SECTION
+        if (racePositionsWithPoints.length > 0 || stats.raceMatchupWins > 0 || stats.positionsGained > 0 || stats.dnfCount > 0 || stats.fastestLaps > 0) {
+            html += '<div style="margin-bottom: 5px;"><strong>Race:</strong></div>';
+            
+            // Race Positions
+            if (racePositionsWithPoints.length > 0) {
+                racePositionsWithPoints.forEach(pos => {
+                    html += `<div>${pos.count} P${pos.position} - +${pos.points} points</div>`;
+                });
+            }
+            
+            // Race matchup wins
+            if (stats.raceMatchupWins > 0) {
+                html += `<div>${stats.raceMatchupWins} race matchup wins - +${stats.raceMatchupWins * 2} points</div>`;
+            }
+            
+            // Positions gained
+            if (stats.positionsGained > 0 && stats.positionsGainedPoints > 0) {
+                html += `<div>${stats.positionsGained} positions gained - +${stats.positionsGainedPoints} points</div>`;
+            }
+            
+            // DNFs
+            if (stats.dnfCount > 0) {
+                html += `<div>${stats.dnfCount} DNFs - ${stats.dnfPoints} points</div>`;
+            }
+            
+            // Fastest laps
+            if (stats.fastestLaps > 0) {
+                html += `<div>${stats.fastestLaps} fastest laps - +${stats.fastestLaps} points</div>`;
+            }
         }
         
-        if (qualifyingPositionsWithPoints.length > 0) {
-            html += '<div style="margin-top: 8px; margin-bottom: 5px;"><strong>Qualifying Positions:</strong></div>';
-            qualifyingPositionsWithPoints.forEach(pos => {
-                html += `<div>${pos.count} P${pos.position} - +${pos.points} points</div>`;
-            });
+        // QUALIFYING SECTION
+        if (qualifyingPositionsWithPoints.length > 0 || stats.qualifyingMatchupWins > 0) {
+            html += '<div style="margin-top: 8px; margin-bottom: 5px;"><strong>Qualifying:</strong></div>';
+            
+            // Qualifying Positions
+            if (qualifyingPositionsWithPoints.length > 0) {
+                qualifyingPositionsWithPoints.forEach(pos => {
+                    html += `<div>${pos.count} P${pos.position} - +${pos.points} points</div>`;
+                });
+            }
+            
+            // Qualifying matchup wins
+            if (stats.qualifyingMatchupWins > 0) {
+                html += `<div>${stats.qualifyingMatchupWins} qualifying matchup wins - +${stats.qualifyingMatchupWins * 2} points</div>`;
+            }
         }
         
-        if (sprintQualifyingPositionsWithPoints.length > 0) {
-            html += '<div style="margin-top: 8px; margin-bottom: 5px;"><strong>Sprint Qualifying Positions:</strong></div>';
-            sprintQualifyingPositionsWithPoints.forEach(pos => {
-                html += `<div>${pos.count} P${pos.position} - +${pos.points} points</div>`;
-            });
+        // SPRINT RACE SECTION
+        if (sprintPositionsWithPoints.length > 0 || stats.sprintMatchupWins > 0) {
+            html += '<div style="margin-top: 8px; margin-bottom: 5px;"><strong>Sprint Race:</strong></div>';
+            
+            // Sprint Race Positions
+            if (sprintPositionsWithPoints.length > 0) {
+                sprintPositionsWithPoints.forEach(pos => {
+                    html += `<div>${pos.count} P${pos.position} - +${pos.points} points</div>`;
+                });
+            }
+            
+            // Sprint matchup wins
+            if (stats.sprintMatchupWins > 0) {
+                html += `<div>${stats.sprintMatchupWins} sprint matchup wins - +${stats.sprintMatchupWins * 2} points</div>`;
+            }
         }
         
-        if (stats.raceMatchupWins > 0) {
-            html += `<div>${stats.raceMatchupWins} race matchup wins - +${stats.raceMatchupWins * 2} points</div>`;
-        }
-        
-        if (stats.qualifyingMatchupWins > 0) {
-            html += `<div>${stats.qualifyingMatchupWins} qualifying matchup wins - +${stats.qualifyingMatchupWins * 2} points</div>`;
-        }
-        
-        if (stats.sprintQualifyingMatchupWins > 0) {
-            html += `<div>${stats.sprintQualifyingMatchupWins} sprint qualifying matchup wins - +${stats.sprintQualifyingMatchupWins * 2} points</div>`;
-        }
-        
-        if (stats.sprintMatchupWins > 0) {
-            html += `<div>${stats.sprintMatchupWins} sprint matchup wins - +${stats.sprintMatchupWins * 2} points</div>`;
-        }
-        
-        if (stats.dnfCount > 0) {
-            html += `<div>${stats.dnfCount} DNFs - ${stats.dnfPoints} points</div>`;
-        }
-        
-        if (stats.positionsGained > 0 && stats.positionsGainedPoints > 0) {
-            html += `<div>${stats.positionsGained} positions gained - +${stats.positionsGainedPoints} points</div>`;
-        }
-        
-        if (stats.fastestLaps > 0) {
-            html += `<div>${stats.fastestLaps} fastest laps - +${stats.fastestLaps} points</div>`;
-        }
-        
-        // Sprint results if any
-        if (stats.sprintPoints > 0) {
-            html += `<div style="margin-top: 8px;"><strong>Sprint race points:</strong> ${stats.sprintPoints} points</div>`;
+        // SPRINT QUALIFYING SECTION
+        if (sprintQualifyingPositionsWithPoints.length > 0 || stats.sprintQualifyingMatchupWins > 0) {
+            html += '<div style="margin-top: 8px; margin-bottom: 5px;"><strong>Sprint Qualifying:</strong></div>';
+            
+            // Sprint Qualifying Positions
+            if (sprintQualifyingPositionsWithPoints.length > 0) {
+                sprintQualifyingPositionsWithPoints.forEach(pos => {
+                    html += `<div>${pos.count} P${pos.position} - +${pos.points} points</div>`;
+                });
+            }
+            
+            // Sprint Qualifying matchup wins
+            if (stats.sprintQualifyingMatchupWins > 0) {
+                html += `<div>${stats.sprintQualifyingMatchupWins} sprint qualifying matchup wins - +${stats.sprintQualifyingMatchupWins * 2} points</div>`;
+            }
         }
         
         // Total
@@ -646,6 +675,8 @@ const Dashboard = {
         const stats = {
             racePositions: [],
             qualifyingPositions: [],
+            sprintPositions: [], // Added array to track sprint race positions
+            sprintQualifyingPositions: [],
             raceMatchupWins: 0,
             qualifyingMatchupWins: 0,
             dnfCount: 0,
@@ -653,17 +684,17 @@ const Dashboard = {
             positionsGained: 0,
             positionsGainedPoints: 0,
             fastestLaps: 0,
-            sprintPoints: breakdown.sprint || 0,
-            sprintQualifyingPoints: 0, // We'll calculate this from details instead
-            sprintQualifyingPositions: [], // New array to track sprint qualifying positions
-            sprintMatchupWins: 0, // New counter for sprint matchup wins
-            sprintQualifyingMatchupWins: 0 // New counter for sprint qualifying matchup wins
+            sprintPoints: 0, // We'll calculate this from details instead, not using breakdown.sprint
+            sprintQualifyingPoints: 0,
+            sprintMatchupWins: 0,
+            sprintQualifyingMatchupWins: 0
         };
         
         // Process race details
         const racePositionCounts = {};
         const qualifyingPositionCounts = {};
-        const sprintQualifyingPositionCounts = {}; // New object to track sprint qualifying positions
+        const sprintPositionCounts = {}; // Added object to track sprint race positions
+        const sprintQualifyingPositionCounts = {};
         
         breakdown.details.forEach(detail => {
             if (detail.type === 'Race') {
@@ -732,10 +763,20 @@ const Dashboard = {
                     stats.sprintQualifyingMatchupWins++;
                 }
             } else if (detail.type === 'Sprint') {
-                // We're already capturing Sprint points outside this loop
-                // sprintPoints is set to breakdown.sprint
+                // Track sprint race positions properly
+                const position = detail.position;
+                if (!sprintPositionCounts[position]) {
+                    sprintPositionCounts[position] = { count: 0, points: 0 };
+                }
                 
-                // But we could count sprint matchup wins if needed
+                // Add base points to position count
+                sprintPositionCounts[position].count++;
+                sprintPositionCounts[position].points += detail.breakdown.basePoints;
+                
+                // Add to total sprint points
+                stats.sprintPoints += detail.breakdown.total;
+                
+                // Count sprint matchup wins
                 if (detail.breakdown.teammatePoints > 0) {
                     stats.sprintMatchupWins++;
                 }
@@ -760,6 +801,15 @@ const Dashboard = {
             });
         }
         
+        // Convert sprint position counts to array and sort
+        for (const position in sprintPositionCounts) {
+            stats.sprintPositions.push({
+                position: parseInt(position),
+                count: sprintPositionCounts[position].count,
+                points: sprintPositionCounts[position].points
+            });
+        }
+        
         // Convert sprint qualifying position counts to array and sort
         for (const position in sprintQualifyingPositionCounts) {
             stats.sprintQualifyingPositions.push({
@@ -772,6 +822,7 @@ const Dashboard = {
         // Sort positions by position number
         stats.racePositions.sort((a, b) => a.position - b.position);
         stats.qualifyingPositions.sort((a, b) => a.position - b.position);
+        stats.sprintPositions.sort((a, b) => a.position - b.position);
         stats.sprintQualifyingPositions.sort((a, b) => a.position - b.position);
         
         return stats;
