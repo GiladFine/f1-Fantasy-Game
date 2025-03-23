@@ -178,5 +178,185 @@
     "finished": false,
     "fantasy_points": -5,
     "id": 20
+  },
+  {
+    "race_id": 2,
+    "driver_id": 2,
+    "position": 1,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 25,
+    "id": 21
+  },
+  {
+    "race_id": 2,
+    "driver_id": 1,
+    "position": 2,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 19,
+    "id": 22
+  },
+  {
+    "race_id": 2,
+    "driver_id": 7,
+    "position": 3,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 15,
+    "id": 23
+  },
+  {
+    "race_id": 2,
+    "driver_id": 5,
+    "position": 4,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 12,
+    "id": 24
+  },
+  {
+    "race_id": 2,
+    "driver_id": 3,
+    "position": 5,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 11,
+    "id": 25
+  },
+  {
+    "race_id": 2,
+    "driver_id": 16,
+    "position": 9,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 3,
+    "id": 26
+  },
+  {
+    "race_id": 2,
+    "driver_id": 4,
+    "position": 6,
+    "fastest_lap": true,
+    "finished": true,
+    "fantasy_points": 9,
+    "id": 27
+  },
+  {
+    "race_id": 2,
+    "driver_id": 13,
+    "position": 7,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 10,
+    "id": 28
+  },
+  {
+    "race_id": 2,
+    "driver_id": 8,
+    "position": 8,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 4,
+    "id": 29
+  },
+  {
+    "race_id": 2,
+    "driver_id": 14,
+    "position": 10,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 8,
+    "id": 30
+  },
+  {
+    "race_id": 2,
+    "driver_id": 11,
+    "position": 11,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 5,
+    "id": 31
+  },
+  {
+    "race_id": 2,
+    "driver_id": 10,
+    "position": 12,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 2,
+    "id": 32
+  },
+  {
+    "race_id": 2,
+    "driver_id": 15,
+    "position": 13,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 2,
+    "id": 33
+  },
+  {
+    "race_id": 2,
+    "driver_id": 18,
+    "position": 14,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 0,
+    "id": 34
+  },
+  {
+    "race_id": 2,
+    "driver_id": 6,
+    "position": 15,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 5,
+    "id": 35
+  },
+  {
+    "race_id": 2,
+    "driver_id": 12,
+    "position": 16,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 2,
+    "id": 36
+  },
+  {
+    "race_id": 2,
+    "driver_id": 20,
+    "position": 17,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 2,
+    "id": 37
+  },
+  {
+    "race_id": 2,
+    "driver_id": 19,
+    "position": 18,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 0,
+    "id": 38
+  },
+  {
+    "race_id": 2,
+    "driver_id": 17,
+    "position": 19,
+    "fastest_lap": false,
+    "finished": true,
+    "fantasy_points": 0,
+    "id": 39
+  },
+  {
+    "race_id": 2,
+    "driver_id": 9,
+    "position": 20,
+    "fastest_lap": false,
+    "finished": false,
+    "fantasy_points": -5,
+    "id": 40
   }
 ]
